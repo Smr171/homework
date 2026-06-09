@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>学生成绩管理系统 - C++ WebAssembly | 期中作业展示 ٩(๑❛ᴗ❛๑)۶</title>
+<meta name="description" content="基于C++开发的学生成绩管理系统，编译为WebAssembly在浏览器运行。教师端管理+学生端查分，含成绩统计、排序、查询、可视化图表、评语、导出Excel。课程设计/期中作业/C++大作业展示。">
+<meta name="keywords" content="学生成绩管理系统,C++,WebAssembly,WASM,Emscripten,成绩管理,课程设计,C++大作业,期中作业">
+<meta name="author" content="成绩管理系统">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="学生成绩管理系统 - C++ WebAssembly ٩(◕‿◕｡)۶">
+<meta property="og:description" content="C++成绩管理系统，教师管理+学生查分，含可视化图表、评语导出。">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="zh_CN">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+<meta name="theme-color" content="#1e3a8a">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="成绩管理">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+
+<!-- highlight.js -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+<!-- ECharts -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+
+<style>
+/* ============================================================
+   变量 — 亮色 / 暗色
+   ============================================================ */
+:root {
+  --bg: #f6f7fb; --surface: #fff; --surface2: #faf9fb; --text: #333; --text2: #888; --text3: #bbb;
+  --border: #e0e8f4; --border2: #d0d8f0; --hover: #eff6ff; --hover2: #eff6ff;
+  --card-shadow: 0 2px 12px rgba(59,130,246,0.06);
+  --topbar-bg: linear-gradient(135deg, #1e3a8a 0%, #1e40af 45%, #1d4ed8 100%);
+  --auth-gradient: linear-gradient(160deg, #020617 0%, #0f172a 30%, #1e293b 55%, #0c1929 75%, #020617 100%);
+  --code-bg: #0f172a; --code-text: #bfdbfe; --code-border: #1e3a5f;
+  --modal-overlay: rgba(0,0,0,0.4);
+}
+[data-theme="dark"] { --bg: #020617; --surface: #0f172a; --surface2: #1e293b; --text: #e2e8f0; --text2: #94a3b8; --text3: #64748b; --border: #1e3a5f; --border2: #2a4a7f; --hover: #1a3050; --hover2: #243860; --card-shadow: 0 2px 14px rgba(0,0,0,0.4); --topbar-bg: linear-gradient(135deg, #1e3a8a, #1e40af, #1d4ed8); --auth-gradient: linear-gradient(160deg, #020617 0%, #0a1030 30%, #101840 55%, #080818 75%, #020617 100%);
+  --code-bg: #020617; --code-text: #93bbfe; --code-border: #1e3a5f;
+  --modal-overlay: rgba(0,0,0,0.65);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'HarmonyOS Sans', 'Microsoft YaHei', sans-serif;
+  background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6; overflow-x: hidden;
+}
+
+/* ============================================================
+   登录页
+   ============================================================ */
+.auth-overlay {
+  position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;
+  background: var(--auth-gradient); background-size: 200% 200%;
+  animation: bgShift 15s ease-in-out infinite; overflow: hidden;
+}
+.auth-overlay.hidden { display: none; }
+@keyframes bgShift { 0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;} }
+
+/* 樱花 Canvas */
+#sakuraCanvas { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+
+/* 光晕 */
+.auth-glow .glow {
+  position: absolute; border-radius: 50%; pointer-events: none; filter: blur(70px);
+  animation: glowPulse 8s ease-in-out infinite;
+}
+@keyframes glowPulse { 0%,100%{opacity:0.25;transform:scale(1);} 50%{opacity:0.45;transform:scale(1.2);} }
+
+@keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
+
+/* 卡片 */
+.auth-card {
+  position: relative; z-index: 2;
+  background: rgba(8,18,40,0.72); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-radius: 26px; padding: 42px 36px 32px; width: 440px; max-width: 94vw;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.3), 0 0 0 1px rgba(100,160,255,0.12), inset 0 1px 0 rgba(255,255,255,0.04);
+  animation: cardIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: #c8d8f0;
+}
+[data-theme="dark"] .auth-card { background: rgba(4,8,20,0.85); color: #b8c8e8; }
+@keyframes cardIn { from{opacity:0;transform:translateY(50px) scale(0.9);} to{opacity:1;transform:translateY(0) scale(1);} }
+
+.role-tabs { display: flex; gap: 0; background: rgba(255,255,255,0.08); border-radius: 16px; padding: 4px; margin: 0 0 24px; }
+[data-theme="dark"] .role-tabs { background: rgba(255,255,255,0.05); }
+.role-tab {
+  flex: 1; padding: 11px 8px; border: none; border-radius: 13px; cursor: pointer;
+  font-size: 0.92rem; font-weight: 700; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: inherit; background: transparent; color: #b0a0b0; text-align: center;
+}
+.role-tab { color: rgba(255,255,255,0.5); }
+.role-tab:hover { color: rgba(255,255,255,0.85); }
+.role-tab.active { background: rgba(255,255,255,0.12); color: #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.25); transform: scale(1.03); }
+[data-theme="dark"] .role-tab.active { background: rgba(255,255,255,0.1); color: #fff; }
+.role-tab .tab-emoji { font-size: 1.3rem; display: block; margin-bottom: 2px; }
+
+.auth-card .field { margin-bottom: 14px; }
+.auth-card .field .iwrap {
+  display: flex; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 15px; overflow: hidden; transition: all 0.25s;
+}
+[data-theme="dark"] .auth-card .field .iwrap { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.06); }
+.auth-card .field .iwrap:focus-within { border-color: rgba(100,160,255,0.5); background: rgba(255,255,255,0.1); box-shadow: 0 0 0 4px rgba(59,130,246,0.08); }
+[data-theme="dark"] .auth-card .field .iwrap:focus-within { background: rgba(255,255,255,0.06); }
+.auth-card .field .iico { padding: 0 4px 0 15px; font-size: 1rem; flex-shrink: 0; }
+.auth-card .field input {
+  width: 100%; padding: 11px 15px 11px 8px; border: none; background: transparent;
+  font-size: 0.9rem; font-family: inherit; outline: none; color: #d8e4f8;
+}
+.auth-card .field input::placeholder { color: rgba(255,255,255,0.3); }
+[data-theme="dark"] .auth-card .field input::placeholder { color: rgba(255,255,255,0.2); }
+.auth-card .field .iico { color: rgba(255,255,255,0.4); }
+.auth-card .switch-line { color: rgba(255,255,255,0.4); }
+.auth-card .switch-line a { color: #60a5fa; }
+.auth-card .msg.err { color: #f87171; }
+.auth-card .msg.ok { color: #60a5fa; }
+
+.auth-card .btn-row { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+.btn-bili-login {
+  width: 100%; padding: 13px; border: none; border-radius: 15px; font-size: 1rem;
+  font-weight: 700; cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: inherit; letter-spacing: 0.03em;
+  background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff;
+  box-shadow: 0 4px 16px rgba(59,130,246,0.35);
+}
+.btn-bili-login:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(59,130,246,0.5); }
+.auth-card .switch-line { text-align: center; margin-top: 16px; font-size: 0.8rem; color: var(--text3); }
+.auth-card .switch-line a { color: #1e40af; cursor: pointer; text-decoration: none; font-weight: 700; }
+.auth-card .msg { font-size: 0.78rem; margin-top: 2px; min-height: 18px; text-align: center; }
+.auth-card .msg.err { color: #ef4444; } .auth-card .msg.ok { color: #38bdf8; }
+
+/* ============================================================
+   主界面 — 顶栏
+   ============================================================ */
+.app-wrap { display: none; flex-direction: column; min-height: 100vh; }
+.app-wrap.active { display: flex; }
+
+.topbar {
+  background: var(--topbar-bg); color: #fff; padding: 0 16px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 14px rgba(59,130,246,0.3); position: sticky; top: 0; z-index: 100;
+}
+.topbar h1 { font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+.topbar h1 .t-icon { font-size: 1.4rem; animation: bounce 2s ease-in-out infinite; }
+.topbar .right-side { display: flex; align-items: center; gap: 8px; }
+.topbar .user-tag {
+  background: rgba(255,255,255,0.22); backdrop-filter: blur(6px); padding: 5px 12px;
+  border-radius: 20px; font-size: 0.78rem; display: flex; align-items: center; gap: 5px;
+}
+.role-badge { padding: 2px 10px; border-radius: 10px; font-size: 0.68rem; font-weight: 700; }
+.role-badge.teacher { background: #60a5fa; color: #7c5e00; }
+.role-badge.student { background: #b8f0e0; color: #007050; }
+.theme-toggle {
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff;
+  width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.theme-toggle:hover { background: rgba(255,255,255,0.28); }
+.btn-logout {
+  background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3);
+  padding: 4px 12px; border-radius: 8px; cursor: pointer; font-size: 0.76rem; transition: all 0.2s; font-family: inherit;
+}
+.btn-logout:hover { background: rgba(255,255,255,0.28); }
+
+.tab-nav { display: flex; gap: 1px; background: rgba(255,255,255,0.15); border-radius: 12px; padding: 3px; backdrop-filter: blur(4px); }
+.tab-nav button {
+  background: none; color: rgba(255,255,255,0.8); border: none; padding: 7px 14px;
+  border-radius: 10px; cursor: pointer; font-size: 0.84rem; font-weight: 500; transition: all 0.2s; font-family: inherit;
+}
+.tab-nav button.on { color: #1e40af; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); font-weight: 700; }
+
+/* ============================================================
+   侧边栏 + 内容区
+   ============================================================ */
+.main-area { flex: 1; display: flex; overflow: hidden; }
+.tab-pane { display: none; flex: 1; } .tab-pane.show { display: flex; }
+
+.sidebar {
+  width: 210px; min-width: 210px; background: var(--surface); border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 8px 0;
+}
+.sidebar .sec-label { font-size: 0.65rem; color: var(--text3); padding: 10px 16px 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; }
+.sidebar button {
+  display: flex; align-items: center; gap: 8px; width: calc(100% - 14px); margin: 2px 7px;
+  padding: 8px 12px; border: none; border-radius: 10px; background: none; color: var(--text);
+  font-size: 0.82rem; cursor: pointer; text-align: left; transition: all 0.18s; font-family: inherit;
+}
+.sidebar button:hover { background: var(--hover); color: #1e40af; }
+.sidebar button.active { background: #1e40af; color: #fff; font-weight: 700; box-shadow: 0 2px 8px rgba(30,64,175,0.4); }
+.sidebar button .s-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+
+.content { flex: 1; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+.card {
+  background: var(--surface); border-radius: 16px; padding: 16px 20px;
+  box-shadow: var(--card-shadow); border: 1px solid var(--border); transition: all 0.25s;
+}
+.card h3 {
+  font-size: 1rem; background: linear-gradient(135deg, #3b82f6, #1e40af);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid var(--hover);
+  display: flex; align-items: center; gap: 7px;
+}
+.statusbar {
+  height: 30px; background: var(--surface); border-top: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 16px; font-size: 0.74rem; color: var(--text2); gap: 14px; flex-shrink: 0;
+}
+.statusbar .sv { font-weight: 700; color: #1e40af; font-size: 0.83rem; }
+
+/* ============================================================
+   表格
+   ============================================================ */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+thead th {
+  background: linear-gradient(180deg, #eff6ff, #dbeafe); color: #1e40af; font-weight: 700;
+  padding: 8px 8px; text-align: center; white-space: nowrap; border-bottom: 2px solid #f8c8d8;
+}
+[data-theme="dark"] thead th { background: linear-gradient(180deg, #1e3a5f, #1e293b); color: #f0a0c0; border-color: #2a4a7f; }
+tbody td { padding: 7px 8px; text-align: center; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
+tbody tr:hover { background: var(--hover); }
+tbody tr:nth-child(even) { background: var(--surface2); }
+.btn-sm { padding: 3px 8px; font-size: 0.7rem; border-radius: 6px; border: none; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.btn-sm-edit { background: #e8f0fe; color: #1a73e8; }
+.btn-sm-edit:hover { background: #d0e0fc; }
+.btn-sm-del { background: #fce8e8; color: #d93025; }
+.btn-sm-del:hover { background: #f8d0d0; }
+.btn-sm-comment { background: #e8f8e8; color: #1a7a30; }
+.btn-sm-comment:hover { background: #d0f0d0; }
+
+/* ============================================================
+   模态框
+   ============================================================ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 9998; background: var(--modal-overlay);
+  display: none; align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: var(--surface); border-radius: 20px; padding: 24px 28px; width: 500px; max-width: 94vw;
+  max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  animation: cardIn 0.3s ease;
+}
+.modal-box h3 { font-size: 1.05rem; color: #1e40af; margin-bottom: 14px; }
+.modal-box .btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+/* ============================================================
+   表单/按钮
+   ============================================================ */
+.fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fg { display: flex; flex-direction: column; gap: 3px; }
+.fg label { font-size: 0.77rem; font-weight: 600; color: var(--text2); }
+.fg input, .fg textarea, .fg select {
+  padding: 8px 11px; border: 1.5px solid var(--border2); border-radius: 10px; font-size: 0.85rem;
+  font-family: inherit; transition: all 0.2s; background: var(--surface2); color: var(--text);
+}
+.fg input:focus, .fg textarea:focus { outline: none; border-color: #1e40af; box-shadow: 0 0 0 3px rgba(59,130,246,0.07); }
+.fg textarea { resize: vertical; min-height: 60px; }
+.btn {
+  padding: 8px 16px; border: none; border-radius: 10px; font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all 0.22s; font-family: inherit; display: inline-flex; align-items: center; gap: 5px;
+  position: relative; overflow: hidden;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(0,0,0,0.12); }
+.btn:active { transform: translateY(0); }
+/* 波纹 */
+.btn::after {
+  content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(255,255,255,0.35) 10%, transparent 60%);
+  opacity: 0; transition: opacity 0.4s; pointer-events: none;
+}
+.btn:active::after { opacity: 1; transition: opacity 0s; }
+.btn-pri { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
+.btn-ok  { background: linear-gradient(135deg, #38bdf8, #1eb8e8); color: #fff; }
+.btn-red { background: #ef4444; color: #fff; }
+.btn-out { background: var(--surface); color: #1e40af; border: 1.5px solid #3b82f6; }
+
+/* 可排序表头 */
+th.sortable { cursor: pointer; user-select: none; position: relative; padding-right: 18px !important; }
+th.sortable:hover { background: #bfdbfe; }
+th.sortable::after { content: '⇅'; position: absolute; right: 4px; font-size: 0.7rem; opacity: 0.3; }
+th.sortable.asc::after { content: '▲'; opacity: 1; color: #1e40af; }
+th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
+
+/* 源码折叠 */
+.src-wrap details { margin-bottom: 6px; }
+.src-wrap details summary {
+  cursor: pointer; padding: 8px 14px; background: var(--surface2); border-radius: 8px;
+  font-size: 0.85rem; font-weight: 600; color: #1e40af; border: 1px solid var(--border);
+  transition: all 0.2s; list-style: none;
+}
+.src-wrap details summary::-webkit-details-marker { display: none; }
+.src-wrap details summary::before { content: '📁 '; }
+.src-wrap details[open] summary::before { content: '📂 '; }
+.src-wrap details summary:hover { background: var(--hover); }
+.src-wrap details pre { margin-top: 4px; border-radius: 0 0 12px 12px; }
+
+/* 密码强度 */
+.pw-strength { height: 4px; border-radius: 2px; margin-top: 4px; transition: all 0.3s; }
+.pw-weak { background: #ef4444; width: 30%; }
+.pw-mid { background: #fa8c16; width: 60%; }
+.pw-strong { background: #52c41a; width: 100%; }
+
+/* ============================================================
+   图表 / 分布条 / 学生卡片
+   ============================================================ */
+.chart-wrap { width: 100%; height: 340px; }
+.bars { display: flex; flex-direction: column; gap: 4px; }
+.bars .br { display: flex; align-items: center; gap: 6px; }
+.bars .br .bl { min-width: 48px; font-size: 0.76rem; font-weight: 600; color: var(--text2); text-align: right; }
+.bars .br .bt { flex: 1; height: 22px; background: var(--bg); border-radius: 5px; overflow: hidden; }
+.bars .br .bf { height: 100%; border-radius: 5px; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; padding-left: 6px; font-size: 0.68rem; font-weight: 700; color: #fff; }
+.bars .br .bc { min-width: 80px; font-size: 0.76rem; color: var(--text2); font-weight: 500; }
+.bf-c0 { background: linear-gradient(90deg, #ef4444, #dc2626); } .bf-c1 { background: linear-gradient(90deg, #f59e0b, #d97706); }
+.bf-c2 { background: linear-gradient(90deg, #3b82f6, #2563eb); } .bf-c3 { background: linear-gradient(90deg, #06b6d4, #0891b2); }
+.bf-c4 { background: linear-gradient(90deg, #10b981, #059669); } .bf-c5 { background: linear-gradient(90deg, #8b5cf6, #7c3aed); }
+
+.s-card {
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: 16px;
+  padding: 16px 20px; box-shadow: var(--card-shadow); max-width: 460px; margin-bottom: 10px;
+}
+.s-card .sc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid var(--hover); }
+.s-card .sc-head .sc-name { font-size: 1.05rem; font-weight: 800; color: #1e40af; }
+.s-card .sc-head .sc-id { font-size: 0.78rem; color: var(--text3); }
+.s-card .sc-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 0.84rem; }
+.s-card .sc-row.divider { border-top: 1px solid var(--border); margin-top: 5px; padding-top: 7px; }
+.teacher-comment {
+  margin-top: 8px; padding: 10px 13px; background: var(--hover); border-radius: 10px;
+  border-left: 3px solid #3b82f6; font-size: 0.82rem; color: var(--text2); font-style: italic;
+}
+
+/* ============================================================
+   审核面板
+   ============================================================ */
+.approval-item {
+  display: flex; align-items: center; justify-content: space-between; padding: 10px 14px;
+  background: var(--surface2); border-radius: 10px; margin-bottom: 6px; border: 1px solid var(--border);
+}
+.approval-item .ai-info { display: flex; flex-direction: column; gap: 2px; }
+.approval-item .ai-name { font-weight: 700; color: var(--text); }
+.approval-item .ai-detail { font-size: 0.74rem; color: var(--text3); }
+.approval-item .ai-actions { display: flex; gap: 6px; }
+
+/* ============================================================
+   其他
+   ============================================================ */
+.rk { display: inline-block; min-width: 24px; padding: 2px 7px; border-radius: 11px; font-weight: 700; font-size: 0.74rem; }
+.rk-1 { background: linear-gradient(135deg, #60a5fa, #3b82f6); color: #7c5e00; }
+.rk-2 { background: #e8ecf2; color: #5a6a7a; } .rk-3 { background: #ffe0cc; color: #b8601a; }
+.sc-great { color: #38bdf8; font-weight: 700; } .sc-good { color: #52c41a; font-weight: 600; }
+.sc-ok { color: #fa8c16; } .sc-bad { color: #ef4444; font-weight: 700; }
+.empty-msg { text-align: center; padding: 30px 14px; color: var(--text3); }
+.empty-msg .em-icon { font-size: 2.6rem; margin-bottom: 6px; }
+.toast {
+  position: fixed; top: 14px; right: 14px; z-index: 9999; padding: 10px 16px;
+  border-radius: 12px; font-weight: 600; font-size: 0.82rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.14); animation: toastIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); max-width: 370px;
+}
+.toast-ok { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+.toast-err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.toast-info { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+[data-theme="dark"] .toast-ok { background: #0a1828; color: #60a5fa; border-color: #285070; }
+[data-theme="dark"] .toast-err { background: #1a1020; color: #f87171; border-color: #302850; }
+[data-theme="dark"] .toast-info { background: #182030; color: #93c5fd; border-color: #283850; }
+@keyframes toastIn { from{transform:translateX(110%);opacity:0;} to{transform:translateX(0);opacity:1;} }
+
+/* 水印 */
+.watermark {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9997; opacity: 0.06;
+  background-repeat: repeat; display: none;
+}
+
+/* 源码/说明 */
+.src-wrap { flex:1; overflow-y:auto; padding:16px 20px; }
+.src-wrap pre { border-radius:14px; box-shadow:0 3px 14px rgba(0,0,0,0.05); border:1px solid var(--border); margin-bottom:12px; font-size:0.79rem; line-height:1.55; background:#f6f8fa; }
+.src-wrap pre code { font-family:'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace; }
+[data-theme="dark"] .src-wrap pre { background:#0d1117; border-color:#21262d; box-shadow:0 3px 14px rgba(0,0,0,0.3); }
+[data-theme="dark"] .src-wrap pre code { color:#c9d1d9; }
+[data-theme="dark"] .src-wrap details summary { background:#161b22; border-color:#21262d; color:#58a6ff; }
+[data-theme="dark"] .src-wrap details summary:hover { background:#1c2128; }
+[data-theme="dark"] .src-wrap details pre { background:#0d1117 !important; }
+[data-theme="dark"] .hljs { background:#0d1117; color:#c9d1d9; }
+[data-theme="dark"] .hljs-keyword { color:#ff7b72; }
+[data-theme="dark"] .hljs-type { color:#ffa657; }
+[data-theme="dark"] .hljs-string { color:#a5d6ff; }
+[data-theme="dark"] .hljs-comment { color:#8b949e; }
+[data-theme="dark"] .hljs-number { color:#79c0ff; }
+[data-theme="dark"] .hljs-built_in { color:#ffa657; }
+[data-theme="dark"] .hljs-meta { color:#ff7b72; }
+[data-theme="dark"] .hljs-title { color:#d2a8ff; }
+.abt-grid { flex:1; overflow-y:auto; padding:18px; display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; align-content:start; }
+.feat { background:var(--surface); border-radius:16px; padding:16px 18px; box-shadow:var(--card-shadow); border:1px solid var(--border); transition:all 0.25s; }
+.feat:hover { transform:translateY(-3px); box-shadow:0 8px 26px rgba(59,130,246,0.1); }
+.feat .fi { font-size:1.7rem; margin-bottom:6px; } .feat h3 { font-size:0.93rem; color:#1e40af; margin-bottom:3px; font-weight:700; }
+.feat p { font-size:0.78rem; color:var(--text2); line-height:1.6; }
+
+.code-block {
+  background: var(--code-bg); color: var(--code-text); border-radius: 14px; padding: 14px 18px;
+  font-family: 'Cascadia Code','Fira Code','Consolas',monospace; font-size: 0.76rem;
+  line-height: 1.65; overflow-x: auto; border: 1px solid var(--code-border);
+}
+.code-block .kw { color: #f0a0c0; } .code-block .tp { color: #80d0f0; }
+.code-block .cm { color: #907898; } .code-block .st { color: #a0e0b0; }
+
+/* ============================================================
+   响应式
+   ============================================================ */
+@media (max-width: 820px) {
+  .sidebar { width: 160px; min-width: 160px; } .sidebar button { font-size: 0.74rem; padding: 6px 8px; }
+  .fgrid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .sidebar { display: none; }
+  .tab-nav button { padding: 5px 8px; font-size: 0.7rem; }
+  .topbar h1 { font-size: 0.85rem; }
+  .topbar .tab-nav { display: none; }
+  .auth-card { padding: 24px 14px 18px; border-radius: 20px; }
+  .abt-grid { grid-template-columns: 1fr; }
+  .modal-box { padding: 16px; }
+  .hamburger { display: flex !important; }
+}
+.hamburger {
+  display: none; width: 36px; height: 36px; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px;
+  cursor: pointer; font-size: 1.3rem; color: #fff;
+}
+.mobile-menu {
+  display: none; position: fixed; inset: 0; z-index: 9990; background: rgba(0,0,0,0.5);
+}
+.mobile-menu.show { display: flex; }
+.mobile-menu .mm-sidebar {
+  width: 200px; background: var(--surface); height: 100%; overflow-y: auto; padding: 8px 0;
+}
+</style>
+</head>
+<body>
+
+<!-- ======== 登录页 ======== -->
+<div class="auth-overlay" id="authOverlay">
+  <canvas id="sakuraCanvas"></canvas>
+  <div class="auth-glow">
+    <div class="glow" style="width:280px;height:280px;background:#3b82f6;top:-80px;left:-60px;"></div>
+    <div class="glow" style="width:220px;height:220px;background:#38bdf8;bottom:-60px;right:-40px;animation-delay:4s;"></div>
+  </div>
+  <div class="auth-card" id="authCard">
+    <div class="role-tabs">
+      <button type="button" class="role-tab active" id="tabTeacher" onclick="switchRole('teacher')">教师端</button>
+      <button type="button" class="role-tab" id="tabStudent" onclick="switchRole('student')">学生端</button>
+    </div>
+    <div class="field"><div class="iwrap"><span class="iico">🧸</span><input type="text" id="authUser" placeholder="用户名" autocomplete="username"></div></div>
+    <div class="field" id="stuIdField" style="display:none;"><div class="iwrap"><span class="iico">🆔</span><input type="number" id="authStuId" placeholder="你的学号(用于匹配成绩)" min="1"></div></div>
+    <div class="field" id="confirmField" style="display:none;"><div class="iwrap"><span class="iico">🔐</span><input type="password" id="authConfirm" placeholder="确认密码" autocomplete="new-password"></div></div>
+    <div class="field"><div class="iwrap"><span class="iico">🔑</span><input type="password" id="authPass" placeholder="密码 (至少6位)" autocomplete="current-password" oninput="checkPwStrength()"></div><div class="pw-strength" id="pwStrength" style="display:none;"></div></div>
+    <div class="msg" id="authMsg"></div>
+    <div class="btn-row"><button class="btn-bili-login" id="authBtn" onclick="doAuth()">✨ 登 录 ٩(◕‿◕｡)۶</button></div>
+    <div class="switch-line"><span id="switchLabel">还没有账号？</span> <a id="switchLink" href="javascript:void(0)" onclick="toggleAuthMode()">🌟 立即注册 (๑˃̵ᴗ˂̵)و</a></div>
+  </div>
+</div>
+
+<!-- ======== 主应用 ======== -->
+<div class="app-wrap" id="appWrap">
+  <header class="topbar">
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()">☰</button>
+    <h1><span class="t-icon">📺</span>学生成绩管理系统</h1>
+    <nav class="tab-nav" id="tabNav">
+      <button class="on" data-tab="demo">✨ 演示</button>
+      <button data-tab="source">💻 源码</button>
+      <button data-tab="about">📖 说明</button>
+    </nav>
+    <div class="right-side">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="切换深色模式">🌙</button>
+      <span class="role-badge" id="roleBadge"></span>
+      <span class="user-tag">🌸 <span id="curUser">---</span></span>
+      <button class="btn-logout" onclick="doLogout()">退出</button>
+    </div>
+  </header>
+
+  <div class="main-area">
+    <div class="tab-pane show" id="pane-demo">
+      <div id="teacherUI" style="display:flex;flex:1;">
+        <aside class="sidebar" id="sidebar">
+          <div class="sec-label">📥 数据管理</div>
+          <button data-act="input"><span class="s-icon">📝</span>录入学生信息</button>
+          <button data-act="display"><span class="s-icon">📊</span>显示全部记录</button>
+          <button data-act="export"><span class="s-icon">📥</span>导出Excel</button>
+          <button data-act="backup"><span class="s-icon">💾</span>备份/恢复</button>
+          <button data-act="clear"><span class="s-icon">🗑</span>清空数据</button>
+          <div class="sec-label">📈 统计分析</div>
+          <button data-act="courseStats"><span class="s-icon">📐</span>各科总分与平均分</button>
+          <button data-act="studentStats"><span class="s-icon">👤</span>每位学生统计</button>
+          <button data-act="distribution"><span class="s-icon">📉</span>成绩分布统计</button>
+          <button data-act="charts"><span class="s-icon">📈</span>可视化报表</button>
+          <button data-act="trend"><span class="s-icon">📈</span>成绩趋势追踪</button>
+          <div class="sec-label">🔀 排序查看</div>
+          <button data-act="sortDesc"><span class="s-icon">⬇</span>总分 高→低</button>
+          <button data-act="sortAsc"><span class="s-icon">⬆</span>总分 低→高</button>
+          <button data-act="sortNum"><span class="s-icon">🔢</span>按学号排序</button>
+          <button data-act="sortName"><span class="s-icon">🔤</span>按姓名排序</button>
+          <div class="sec-label">🔍 查询</div>
+          <button data-act="searchNum"><span class="s-icon">🎯</span>按学号查询</button>
+          <button data-act="searchName"><span class="s-icon">🔎</span>按姓名查询</button>
+          <div class="sec-label">📥 数据导入</div>
+          <button data-act="csvImport"><span class="s-icon">📤</span>批量导入CSV</button>
+          <div class="sec-label">🛡 审核管理</div>
+          <button data-act="approval"><span class="s-icon">✅</span>学生注册审核</button>
+          <button data-act="userManage"><span class="s-icon">👥</span>用户管理</button>
+        </aside>
+        <div class="content" id="contentArea">
+          <div class="empty-msg" id="emptyState"><div class="em-icon">📋</div><p>欢迎使用学生成绩管理系统 (´▽`ʃ♡ƪ)</p><p style="font-size:0.74rem;margin-top:3px;">从左侧菜单开始操作吧 ~</p></div>
+        </div>
+      </div>
+      <div id="studentUI" style="display:none;flex:1;overflow-y:auto;">
+        <div class="student-dash" id="studentDash" style="padding:20px 24px;display:flex;flex-direction:column;align-items:center;gap:16px;">
+          <div style="text-align:center;padding:20px 14px;"><span style="font-size:3.5rem;display:block;margin-bottom:6px;animation:mascotFloat 2s ease-in-out infinite;">🎒</span><h2 style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;">我的成绩单 (◍•ᴗ•◍)</h2><p style="color:var(--text3);font-size:0.83rem;">以下是你的成绩信息 ~</p><div style="display:inline-block;margin-top:6px;background:var(--hover);color:#3b82f6;padding:4px 14px;border-radius:20px;font-size:0.85rem;font-weight:700;border:1.5px solid #bfdbfe;">学号: <span id="stuIdDisplay">---</span></div></div>
+          <div id="studentContent" style="width:100%;max-width:600px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-pane" id="pane-source"><div class="src-wrap" id="sourceContent"></div></div>
+    <div class="tab-pane" id="pane-about">
+      <div class="abt-grid">
+        <div class="feat"><div class="fi">🧑‍🏫</div><h3>教师管理端</h3><p>完整的学生成绩管理：录入、增删改查、统计、排序、可视化报表、评语、审核学生注册。</p></div>
+        <div class="feat"><div class="fi">🎒</div><h3>学生查分端</h3><p>学生注册后经教师审核通过，即可查看个人成绩、排名、教师评语，只读模式安全可靠。</p></div>
+        <div class="feat"><div class="fi">📊</div><h3>ECharts可视化</h3><p>成绩分布柱状图+饼图、各科对比雷达图、总分直方图，交互式图表支持悬停查看详情。</p></div>
+        <div class="feat"><div class="fi">💬</div><h3>教师评语</h3><p>教师可为每位学生撰写个性化评语，学生端同步显示。支持编辑修改。</p></div>
+        <div class="feat"><div class="fi">📥</div><h3>导出Excel</h3><p>一键导出成绩总表为CSV文件（Excel可打开），含时间戳文件名。</p></div>
+        <div class="feat"><div class="fi">🌙</div><h3>深色模式</h3><p>点击顶栏月亮按钮切换暗色主题，偏好自动保存。</p></div>
+        <div class="feat"><div class="fi">📱</div><h3>响应式布局</h3><p>适配桌面/平板/手机，小屏自动折叠侧边栏为汉堡菜单。</p></div>
+        <div class="feat"><div class="fi">⚡</div><h3>C++ WASM驱动</h3><p>核心算法编译为WebAssembly运行，JS界面层，内置降级方案。</p></div>
+        <div class="feat" style="grid-column:1/-1;"><div class="fi">🏗</div><h3>核心数据结构</h3><div class="code-block"><span class="cm">// 系统核心数据模型</span>
+<span class="kw">struct</span> <span class="tp">Student</span> { <span class="tp">long long</span> num; <span class="tp">string</span> name; <span class="tp">vector</span>&lt;<span class="tp">double</span>&gt; score; <span class="tp">double</span> sum, aver; <span class="tp">string</span> comment; };
+<span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_STUDENTS</span> = <span class="st">30</span>; <span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_COURSES</span> = <span class="st">6</span>;</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="statusbar" id="statusBar"><span>📊 记录: <span class="sv" id="statN">0</span> 人</span><span>📚 科目: <span class="sv" id="statM">0</span></span><span style="margin-left:auto;">⚙ <span class="sv" id="statEng">JavaScript</span></span></div>
+</div>
+
+<!-- 模态框容器 -->
+<div class="modal-overlay" id="modalOverlay"><div class="modal-box" id="modalBox"></div></div>
+<!-- Toast -->
+<div id="toastBox"></div>
+
+<script>
+// ============================================================
+// 樱花飘落
+// ============================================================
+(function initStars(){
+  var c=document.getElementById('sakuraCanvas');if(!c)return;
+  var ctx=c.getContext('2d');
+  var stars=[],w,h;
+  function resize(){w=c.width=window.innerWidth;h=c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  // 多层次星空
+  for(var i=0;i<250;i++){
+    var tier=Math.random();
+    stars.push({
+      x:Math.random()*w,y:Math.random()*h,
+      r:tier<0.1?2.2+Math.random()*1.5:tier<0.4?1.2+Math.random()*1:0.4+Math.random()*0.8,
+      a:Math.random(),sp:0.001+Math.random()*0.002,
+      hue:200+Math.random()*40,
+      glow:tier<0.15
+    });
+  }
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    for(var i=0;i<stars.length;i++){
+      var s=stars[i];s.a+=s.sp;if(s.a>1)s.a=0;
+      var alpha=0.25+Math.sin(s.a*Math.PI)*0.75;
+      // 十字光芒（亮星）
+      if(s.glow&&alpha>0.7){
+        ctx.strokeStyle='hsla('+s.hue+',60%,80%,'+(alpha*0.15)+')';
+        ctx.lineWidth=0.5;
+        ctx.beginPath();ctx.moveTo(s.x-s.r*4,s.y);ctx.lineTo(s.x+s.r*4,s.y);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(s.x,s.y-s.r*4);ctx.lineTo(s.x,s.y+s.r*4);ctx.stroke();
+      }
+      // 辉光
+      if(s.glow&&alpha>0.5){
+        var g=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r*4);
+        g.addColorStop(0,'hsla('+s.hue+',60%,85%,'+(alpha*0.3)+')');
+        g.addColorStop(1,'hsla('+s.hue+',60%,70%,0)');
+        ctx.fillStyle=g;ctx.beginPath();ctx.arc(s.x,s.y,s.r*4,0,Math.PI*2);ctx.fill();
+      }
+      // 星点
+      ctx.fillStyle='hsla('+s.hue+',40%,90%,'+alpha+')';
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ============================================================
+// 深浅模式
+// ============================================================
+function toggleTheme() {
+  var html = document.documentElement;
+  var isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeToggle').textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('_sg_theme', isDark ? 'light' : 'dark');
+}
+(function(){ var t=localStorage.getItem('_sg_theme')||'light'; document.documentElement.setAttribute('data-theme',t); document.getElementById('themeToggle').textContent=t==='dark'?'☀️':'🌙'; })();
+
+// ============================================================
+// 水印
+// ============================================================
+function updateWatermark() {
+  var el = document.getElementById('watermarkEl');
+  if (!currentUser) { if(el)el.style.display='none'; return; }
+  if(!el){ el=document.createElement('div'); el.id='watermarkEl'; el.className='watermark'; document.body.appendChild(el); }
+  var c=document.createElement('canvas'); c.width=300;c.height=160;
+  var ctx=c.getContext('2d'); ctx.font='14px "Microsoft YaHei"'; ctx.fillStyle='#888';
+  ctx.fillText(currentUser,20,60); ctx.fillText(new Date().toLocaleDateString(),20,100);
+  el.style.backgroundImage='url('+c.toDataURL()+')'; el.style.display='block';
+}
+
+// ============================================================
+// 角色切换
+// ============================================================
+var currentRole = 'teacher';
+function switchRole(role) {
+  currentRole = role;
+  document.getElementById('tabTeacher').classList.toggle('active', role==='teacher');
+  document.getElementById('tabStudent').classList.toggle('active', role==='student');
+  document.getElementById('stuIdField').style.display = (role==='student')?'':'none';
+  document.getElementById('authMsg').textContent=''; document.getElementById('authMsg').className='msg';
+  // 切换角色时清空表单
+  document.getElementById('authUser').value=''; document.getElementById('authPass').value='';
+  document.getElementById('authConfirm').value=''; document.getElementById('authStuId').value='';
+  document.getElementById('pwStrength').style.display='none';
+}
+
+// ============================================================
+// 认证
+// ============================================================
+var authMode='login',currentUser=null,userStudentId=null;
+function getAccounts(){try{return JSON.parse(localStorage.getItem('_sg_accts')||'{}');}catch(e){return{};}}
+function saveAccounts(a){localStorage.setItem('_sg_accts',JSON.stringify(a));}
+
+function toggleAuthMode(){
+  var card=document.getElementById('authCard');
+  if(authMode==='login'){
+    authMode='register';
+    document.getElementById('authBtn').textContent='🌸 注 册 (๑•̀ㅂ•́)و✧';
+    document.getElementById('confirmField').style.display='';
+    document.getElementById('switchLabel').textContent='已有账号？'; document.getElementById('switchLink').textContent='✨ 去登录 (´｡• ᵕ •｡`)';
+    document.getElementById('pwStrength').style.display='';
+  }else{
+    authMode='login';
+    document.getElementById('authBtn').textContent='✨ 登 录 ٩(◕‿◕｡)۶';
+    document.getElementById('confirmField').style.display='none';
+    document.getElementById('switchLabel').textContent='还没有账号？'; document.getElementById('switchLink').textContent='🌟 立即注册 (๑˃̵ᴗ˂̵)و';
+    document.getElementById('pwStrength').style.display='none';
+  }
+  // 切换时清空
+  document.getElementById('authUser').value=''; document.getElementById('authPass').value='';
+  document.getElementById('authConfirm').value=''; document.getElementById('authStuId').value='';
+  document.getElementById('authMsg').textContent=''; document.getElementById('authMsg').className='msg';
+  document.getElementById('pwStrength').style.display=authMode==='register'?'':'none';
+  card.style.animation='none';card.offsetHeight;card.style.animation='cardIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)';
+}
+
+function checkPwStrength(){
+  var pw=document.getElementById('authPass').value,el=document.getElementById('pwStrength');
+  if(authMode!=='register'){el.style.display='none';return;}
+  el.style.display=''; el.className='pw-strength';
+  if(pw.length<4){el.className+=' pw-weak';}else if(pw.length<6){el.className+=' pw-mid';}else{el.className+=' pw-strong';}
+}
+
+function doAuth(){
+  var user=document.getElementById('authUser').value.trim(),pass=document.getElementById('authPass').value;
+  var msgEl=document.getElementById('authMsg'); msgEl.className='msg';msgEl.textContent='';
+  if(!user||!pass){msgEl.textContent='请填写完整 ~';msgEl.className='msg err';return;}
+  if(user.length<2){msgEl.textContent='用户名至少2个字符 ~';msgEl.className='msg err';return;}
+  var accounts=getAccounts(),stuId=null;
+  if(currentRole==='student'){stuId=parseInt(document.getElementById('authStuId').value);if(!stuId||stuId<=0){msgEl.textContent='请输入学号 ~';msgEl.className='msg err';return;}}
+  if(authMode==='register'){
+    if(pass.length<6){msgEl.textContent='密码至少6位 ~';msgEl.className='msg err';return;}
+    var confirm=document.getElementById('authConfirm').value;
+    if(pass!==confirm){msgEl.textContent='两次密码不一致 ~';msgEl.className='msg err';return;}
+    if(accounts[user]){msgEl.textContent='用户名已被占用 >_<';msgEl.className='msg err';return;}
+    accounts[user]={password:pass,role:currentRole,studentId:stuId,status:currentRole==='student'?'pending':'approved',createdAt:Date.now()};
+    saveAccounts(accounts);
+    if(currentRole==='student'){
+      msgEl.textContent='注册成功！请等待教师审核 ~';msgEl.className='msg ok';
+      toggleAuthMode(); document.getElementById('authUser').value=user;
+      setTimeout(function(){document.getElementById('authMsg').textContent='审核通过后即可登录';},2000);
+    }else{
+      msgEl.textContent='注册成功！正在进入...';msgEl.className='msg ok';
+      setTimeout(function(){loginUser(user,accounts[user]);},600);
+    }
+  }else{
+    var lockKey='_sg_lock_'+user,lock=parseInt(localStorage.getItem(lockKey)||'0');
+    if(lock>Date.now()){var sec=Math.ceil((lock-Date.now())/1000);msgEl.textContent='已锁定，请等'+sec+'秒 ~';msgEl.className='msg err';return;}
+    if(!accounts[user]){msgEl.textContent='账号不存在 ~';msgEl.className='msg err';return;}
+    if(accounts[user].password!==pass){
+      var fails=(parseInt(localStorage.getItem('_sg_fail_'+user)||'0'))+1;
+      localStorage.setItem('_sg_fail_'+user,fails);
+      if(fails>=3){localStorage.setItem(lockKey,Date.now()+30000);localStorage.setItem('_sg_fail_'+user,'0');msgEl.textContent='错误3次，锁定30秒';msgEl.className='msg err';return;}
+      msgEl.textContent='密码不对，还剩'+(3-fails)+'次机会 ~';msgEl.className='msg err';return;
+    }
+    localStorage.setItem('_sg_fail_'+user,'0');
+    if(accounts[user].status==='pending'){msgEl.textContent='账号待教师审核';msgEl.className='msg err';return;}
+    if(accounts[user].status==='rejected'){msgEl.textContent='账号已被拒绝，联系老师 ~';msgEl.className='msg err';return;}
+    loginUser(user,accounts[user]);
+  }
+}
+
+function loginUser(user,acct){
+  currentUser=user;currentRole=acct.role;userStudentId=acct.studentId||null;
+  document.getElementById('curUser').textContent=user;
+  document.getElementById('authOverlay').classList.add('hidden');document.getElementById('appWrap').classList.add('active');
+  document.getElementById('authUser').value='';document.getElementById('authPass').value='';
+  document.getElementById('authConfirm').value='';document.getElementById('authStuId').value='';
+  document.getElementById('authMsg').textContent='';document.getElementById('authMsg').className='msg';
+  loadUserData();updateWatermark();
+  var badge=document.getElementById('roleBadge');
+  if(currentRole==='teacher'){
+    document.getElementById('teacherUI').style.display='flex';document.getElementById('studentUI').style.display='none';document.getElementById('statusBar').style.display='flex';
+    badge.textContent='🧑‍🏫 教师';badge.className='role-badge teacher';updateStats();if(engine.count()>0)showAll();
+  }else{
+    document.getElementById('teacherUI').style.display='none';document.getElementById('studentUI').style.display='flex';document.getElementById('statusBar').style.display='none';
+    badge.textContent='🎒 学生';badge.className='role-badge student';showStudentDashboard();
+  }
+  showToast('欢迎回来，'+user+'！🌸','ok');
+}
+
+function doLogout(){saveUserData();currentUser=null;userStudentId=null;updateWatermark();document.getElementById('authOverlay').classList.remove('hidden');document.getElementById('appWrap').classList.remove('active');if(authMode==='register')toggleAuthMode();document.getElementById('authUser').focus();}
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&!document.getElementById('authOverlay').classList.contains('hidden'))doAuth();});
+
+// ============================================================
+// 数据引擎 (含评语+历史)
+// ============================================================
+function createEngine(){
+  var students=[],m=0;
+  function calcOne(s){var sum=0;for(var i=0;i<s.scores.length;i++)sum+=s.scores[i];s.sum=sum;s.aver=s.scores.length>0?sum/s.scores.length:0;}
+  function calcAll(){for(var i=0;i<students.length;i++)calcOne(students[i]);}
+  function mkRank(){var l=students.slice();calcAll();l.sort(function(a,b){if(a.sum!==b.sum)return b.sum-a.sum;return a.num-b.num;});return l;}
+  return{
+    count:function(){return students.length;},courseN:function(){return m;},
+    add:function(num,name,scores){if(students.length>=30)return-1;if(students.length>0&&scores.length!==m)return-2;var s={num:num,name:name,scores:scores.slice(),sum:0,aver:0,comment:''};calcOne(s);if(m===0)m=scores.length;students.push(s);saveHistory();return 0;},
+    update:function(idx,num,name,scores){
+      if(idx<0||idx>=students.length)return-1;var s=students[idx];s.num=num;s.name=name;s.scores=scores.slice();calcOne(s);saveHistory();return 0;
+    },
+    setComment:function(idx,comment){if(idx<0||idx>=students.length)return-1;students[idx].comment=comment||'';return 0;},
+    all:function(){calcAll();var r=mkRank();return students.map(function(s){var rk=-1;for(var i=0;i<r.length;i++)if(r[i].num===s.num){rk=i+1;break;}return{num:s.num,name:s.name,scores:s.scores.slice(),sum:+s.sum.toFixed(2),aver:+s.aver.toFixed(2),rank:rk,comment:s.comment||''};});},
+    sortDesc:function(){calcAll();students.sort(function(a,b){if(a.sum!==b.sum)return b.sum-a.sum;return a.num-b.num;});},
+    sortAsc:function(){calcAll();students.sort(function(a,b){if(a.sum!==b.sum)return a.sum-b.sum;return a.num-b.num;});},
+    sortNum:function(){students.sort(function(a,b){return a.num-b.num;});},
+    sortName:function(){students.sort(function(a,b){if(a.name!==b.name)return a.name<b.name?-1:1;return a.num-b.num;});},
+    findByNum:function(num){calcAll();var r=mkRank();for(var i=0;i<students.length;i++)if(students[i].num===num){var rk=-1;for(var j=0;j<r.length;j++)if(r[j].num===num){rk=j+1;break;}return{num:students[i].num,name:students[i].name,scores:students[i].scores.slice(),sum:+students[i].sum.toFixed(2),aver:+students[i].aver.toFixed(2),rank:rk,comment:students[i].comment||''};}return null;},
+    findByName:function(name){calcAll();var r=mkRank(),res=[];for(var i=0;i<students.length;i++)if(students[i].name===name){var rk=-1;for(var j=0;j<r.length;j++)if(r[j].num===students[i].num){rk=j+1;break;}res.push({num:students[i].num,name:students[i].name,scores:students[i].scores.slice(),sum:+students[i].sum.toFixed(2),aver:+students[i].aver.toFixed(2),rank:rk,comment:students[i].comment||''});}return res;},
+    courseStats:function(){calcAll();var s=[];for(var i=0;i<m;i++){var t=0;for(var j=0;j<students.length;j++)t+=students[j].scores[i];s.push({idx:i+1,total:+t.toFixed(2),avg:+(t/students.length).toFixed(2)});}return s;},
+    studentStats:function(){calcAll();return students.map(function(s){return{num:s.num,name:s.name,total:+s.sum.toFixed(2),avg:+s.aver.toFixed(2)};});},
+    dist:function(ci){if(ci<0||ci>=m||students.length===0)return null;var cnt=[0,0,0,0,0,0],lbs=['\x3C60','60-69','70-79','80-89','90-99','100'];for(var i=0;i<students.length;i++){var sc=students[i].scores[ci];if(sc<60)cnt[0]++;else if(sc<70)cnt[1]++;else if(sc<80)cnt[2]++;else if(sc<90)cnt[3]++;else if(sc<100)cnt[4]++;else cnt[5]++;}return{idx:ci+1,items:cnt.map(function(v,i){return{range:lbs[i],count:v,pct:+(100*v/students.length).toFixed(1)};})};},
+    remove:function(i){if(i<0||i>=students.length)return-1;students.splice(i,1);if(students.length===0)m=0;saveHistory();return 0;},
+    clear:function(){students=[];m=0;},
+    toJSON:function(){return{students:students,m:m};},
+    fromJSON:function(d){students=d.students||[];m=d.m||0;}
+  };
+}
+var engine=createEngine();
+
+// 历史快照
+function saveHistory(){
+  if(!currentUser||currentRole!=='teacher')return;
+  try{var h=JSON.parse(localStorage.getItem('_sg_hist_'+currentUser)||'[]');h.push({time:Date.now(),data:engine.toJSON()});if(h.length>50)h=h.slice(-50);localStorage.setItem('_sg_hist_'+currentUser,JSON.stringify(h));}catch(e){}
+}
+function getHistory(){try{return JSON.parse(localStorage.getItem('_sg_hist_'+(currentUser||''))||'[]');}catch(e){return[];}}
+
+// ============================================================
+// 持久化
+// ============================================================
+function getStorageKey(){return'_sg_data_'+(currentUser||'anon');}
+function saveUserData(){if(!currentUser)return;localStorage.setItem(getStorageKey(),JSON.stringify(engine.toJSON()));}
+function loadUserData(){try{var r=localStorage.getItem(getStorageKey());if(r)engine.fromJSON(JSON.parse(r));}catch(e){}}
+function autoSave(){saveUserData();if(currentRole==='teacher')updateStats();}
+
+// ============================================================
+// UI工具
+// ============================================================
+function $(id){return document.getElementById(id);}
+function showToast(msg,type){type=type||'info';var b=$('toastBox'),e=document.createElement('div');e.className='toast toast-'+(type==='ok'?'ok':type==='err'?'err':'info');e.textContent=msg;b.appendChild(e);setTimeout(function(){e.remove();},2400);}
+function updateStats(){$('statN').textContent=engine.count();$('statM').textContent=engine.courseN();}
+function scColor(v){if(v>=90)return'sc-great';if(v>=80)return'sc-good';if(v>=60)return'sc-ok';return'sc-bad';}
+function rkCls(r){if(r===1)return'rk-1';if(r===2)return'rk-2';if(r===3)return'rk-3';return'';}
+
+function openModal(title,bodyHtml,onSave){
+  $('modalBox').innerHTML='<h3>'+title+'</h3>'+bodyHtml+'<div class="btn-row"><button class="btn btn-out" onclick="closeModal()">取消</button><button class="btn btn-pri" id="modalSaveBtn">保存</button></div>';
+  $('modalOverlay').classList.add('show');
+  $('modalSaveBtn').onclick=function(){onSave();closeModal();};
+}
+function closeModal(){$('modalOverlay').classList.remove('show');}
+$('modalOverlay').addEventListener('click',function(e){if(e.target===$('modalOverlay'))closeModal();});
+
+function renderTable(title,cols,rows,extra){
+  var h='<div class="card"><h3>'+title+'</h3>'+(extra||'')+'<div class="tbl-wrap"><table><thead><tr>';
+  for(var i=0;i<cols.length;i++)h+='<th>'+cols[i]+'</th>';h+='</tr></thead><tbody>';
+  if(rows.length===0)h+='<tr><td colspan="'+cols.length+'" style="color:var(--text3);padding:16px;">暂无数据 ~ (´-ω-`)</td></tr>';
+  else for(var r=0;r<rows.length;r++){h+='<tr>';for(var c=0;c<rows[r].length;c++)h+='<td>'+rows[r][c]+'</td>';h+='</tr>';}
+  h+='</tbody></table></div></div>';$('contentArea').innerHTML=h;
+}
+
+// 学生卡片
+function studentCard(s,showComment){
+  var m=engine.courseN(),sc='';
+  for(var j=0;j<m;j++)sc+='<div class="sc-row"><span>科目'+(j+1)+'</span><span class="'+scColor(s.scores[j])+'">'+s.scores[j].toFixed(1)+'</span></div>';
+  return'<div class="s-card"><div class="sc-head"><span class="sc-name">'+s.name+'</span><span class="sc-id">学号: '+s.num+'</span></div>'+(s.rank>0?'<div class="sc-row"><span>🏆 排名</span><span><span class="rk '+rkCls(s.rank)+'">第'+s.rank+'名</span></span></div>':'')+sc+'<div class="sc-row divider"><span><strong>总分</strong></span><span><strong>'+s.sum.toFixed(2)+'</strong></span></div><div class="sc-row"><span><strong>平均分</strong></span><span><strong>'+s.aver.toFixed(2)+'</strong></span></div>'+(showComment&&s.comment?'<div class="teacher-comment">💬 教师评语：'+s.comment+'</div>':'')+'</div>';
+}
+
+// ============================================================
+// 教师端功能
+// ============================================================
+function showInputForm(){$('contentArea').innerHTML='<div class="card"><h3>📝 录入学生信息</h3><div class="fgrid"><div class="fg"><label>学生人数 (1-30)</label><input type="number" id="inN" min="1" max="30" value="3"></div><div class="fg"><label>科目数 (1-6)</label><input type="number" id="inM" min="1" max="6" value="3"></div></div><div style="margin-top:10px;"><button class="btn btn-pri" onclick="startInput()">✨ 开始录入</button> <button class="btn btn-out" onclick="loadDemo()">🎲 加载演示</button></div></div><div id="batchArea"></div>';}
+function startInput(){
+  var n=Math.max(1,Math.min(30,parseInt($('inN').value)||3)),mm=Math.max(1,Math.min(6,parseInt($('inM').value)||3));
+  engine.clear();autoSave();
+  var h='<div class="card"><h3>逐条录入 ('+n+'人, '+mm+'科)</h3><div style="margin-bottom:8px;font-size:0.82rem;color:var(--text3);">当前: <strong id="curIdx" style="color:#3b82f6;">第 1 位</strong> | 进度: <span id="prog">0</span>/'+n+'</div>';
+  h+='<div class="fgrid"><div class="fg"><label>学号</label><input type="number" id="fNum" min="1" placeholder="正整数"></div><div class="fg"><label>姓名</label><input type="text" id="fName" placeholder="姓名"></div></div><div class="fgrid" style="margin-top:6px;" id="scoreFields">';
+  for(var j=0;j<mm;j++)h+='<div class="fg"><label>科目'+(j+1)+' (0-100)</label><input type="number" id="fS'+j+'" min="0" max="100" step="0.5" placeholder="0-100"></div>';
+  h+='</div><div style="margin-top:10px;"><button class="btn btn-pri" onclick="addOne('+n+','+mm+')">✨ 提交并继续</button> <button class="btn btn-out" onclick="finishInput()">完成</button></div></div>';
+  $('batchArea').innerHTML=h;window._bt={n:n,m:mm,done:0};setTimeout(function(){$('fNum').focus();},100);
+}
+function addOne(total,mm){
+  var num=parseInt($('fNum').value),name=$('fName').value.trim();
+  if(!num||num<=0){showToast('请输入有效学号 ~','err');$('fNum').focus();return;}if(!name){showToast('请输入姓名 ~','err');$('fName').focus();return;}
+  var scores=[];
+  for(var j=0;j<mm;j++){var v=parseFloat($('fS'+j).value);if(isNaN(v)||v<0||v>100){showToast('科目'+(j+1)+'成绩需0~100','err');$('fS'+j).focus();return;}scores.push(v);}
+  var r=engine.add(num,name,scores);if(r===-1){showToast('已达上限30人 >_<','err');return;}if(r===-2){showToast('科目数不一致','err');return;}
+  window._bt.done++;autoSave();showToast('✨ '+name+' ('+window._bt.done+'/'+total+')','ok');
+  $('fNum').value='';$('fName').value='';for(var j=0;j<mm;j++)$('fS'+j).value='';
+  if(window._bt.done>=total){finishInput();return;}$('curIdx').textContent='第 '+(window._bt.done+1)+' 位';$('prog').textContent=window._bt.done;$('fNum').focus();
+}
+function finishInput(){var d=window._bt?window._bt.done:engine.count();$('batchArea').innerHTML='';autoSave();if(d>0){showToast('🌸 录入完成！共'+d+'位','ok');showAll();}else{showToast('没有录入数据 ~','info');showEmpty();}}
+function loadDemo(){
+  engine.clear();var ns=['张三','李四','王五','赵六','钱七','孙八'];var ss=[[88,92,78],[75,85,90],[95,88,82],[60,72,68],[100,96,94],[82,79,91]];
+  for(var i=0;i<ns.length;i++)engine.add(2024001+i,ns[i],ss[i]);
+  autoSave();showToast('🎲 已加载'+ns.length+'位演示学生','ok');showAll();
+}
+
+// ---- 显示全部 ----
+function showAll(){
+  var all=engine.all();if(all.length===0){showEmpty();return;}
+  var mm=engine.courseN();
+  var cols=['操作','排名','学号','姓名'];
+  for(var j=0;j<mm;j++)cols.push('科目'+(j+1));cols.push('总分','平均分','评语');
+  var rows=all.map(function(s,i){
+    var row=[
+      '<button class="btn-sm btn-sm-edit" onclick="editStudent('+i+')">e</button> <button class="btn-sm btn-sm-del" onclick="delStudent('+i+')">x</button>',
+      s.rank>0?'<span class="rk '+rkCls(s.rank)+'">'+s.rank+'</span>':'-',s.num,s.name
+    ];
+    for(var j=0;j<mm;j++)row.push('<span class="'+scColor(s.scores[j])+'">'+s.scores[j].toFixed(1)+'</span>');
+    row.push('<strong>'+s.sum.toFixed(2)+'</strong>',s.aver.toFixed(2));
+    row.push('<button class="btn-sm btn-sm-comment" onclick="editComment('+i+',\x27'+(s.comment||'').replace(/\\/g,'\\\\').replace(/'/g,"\\x27")+'\x27)">'+(s.comment?'c':'+')+'</button>');
+    return row;
+  });
+  // Build header with sort buttons
+  var th='';
+  for(var j=0;j<mm;j++)th+='<th class="sortable" onclick="doSortByCourse('+j+')">科目'+(j+1)+'</th>';
+  th+='<th class="sortable" onclick="doSort(\x27desc\x27)">总分</th>';
+  th+='<th class="sortable" onclick="doSort(\x27asc\x27)">平均分</th>';
+  var colsHtml='<th>操作</th><th>排名</th><th class="sortable" onclick="doSort(\x27num\x27)">学号</th><th class="sortable" onclick="doSort(\x27name\x27)">姓名</th>'+th+'<th>评语</th>';
+  var h='<div class="card"><h3>学生成绩总表</h3><div class="tbl-wrap"><table><thead><tr>'+colsHtml+'</tr></thead><tbody>';
+  if(rows.length===0)h+='<tr><td colspan="'+(mm+8)+'" style="color:var(--text3);padding:16px;">暂无数据 ~</td></tr>';
+  else for(var r=0;r<rows.length;r++){h+='<tr>';for(var c=0;c<rows[r].length;c++)h+='<td>'+rows[r][c]+'</td>';h+='</tr>';}
+  h+='</tbody></table></div></div>';$('contentArea').innerHTML=h;
+}
+function showEmpty(){$('contentArea').innerHTML='<div class="empty-msg"><div class="em-icon">📋</div><p>还没有数据哦，去录入吧 (´▽`ʃ♡ƪ)</p></div>';}
+
+// 编辑/删除
+function editStudent(i){
+  var s=engine.all()[i],mm=engine.courseN();
+  var h='<div class="fgrid"><div class="fg"><label>学号</label><input type="number" id="eNum" value="'+s.num+'" min="1"></div><div class="fg"><label>姓名</label><input type="text" id="eName" value="'+s.name+'"></div></div><div class="fgrid" style="margin-top:8px;">';
+  for(var j=0;j<mm;j++)h+='<div class="fg"><label>科目'+(j+1)+'</label><input type="number" id="eS'+j+'" value="'+s.scores[j]+'" min="0" max="100" step="0.5"></div>';
+  h+='</div>';
+  openModal('✏ 编辑 '+s.name,h,function(){
+    var num=parseInt($('eNum').value),name=$('eName').value.trim(),scores=[];
+    for(var j=0;j<mm;j++)scores.push(parseFloat($('eS'+j).value)||0);
+    engine.update(i,num,name,scores);autoSave();showAll();showToast('已更新 '+name+' ✨','ok');
+  });
+}
+function delStudent(i){
+  var s=engine.all()[i];
+  openModal('⚠ 确认删除', '<p style="color:var(--text2);">确定要删除 <strong>'+s.name+'</strong> (学号: '+s.num+') 吗？此操作不可恢复。</p>', function(){
+    engine.remove(i);autoSave();showAll();showToast('已删除 (´-ω-`)','info');
+  });
+}
+function editComment(i,old){
+  openModal('💬 评语 - '+engine.all()[i].name,'<div class="fg"><label>教师评语</label><textarea id="eComment" placeholder="输入评语...">'+(old||'')+'</textarea></div>',function(){
+    engine.setComment(i,$('eComment').value.trim());autoSave();showAll();showToast('评语已保存 ✨','ok');
+  });
+}
+
+// 导出CSV
+function exportCSV(){
+  var all=engine.all(),mm=engine.courseN();if(all.length===0){showToast('暂无数据可导出 ~','info');return;}
+  var csv='﻿';csv+='排名,学号,姓名';
+  for(var j=0;j<mm;j++)csv+=',科目'+(j+1);csv+=',总分,平均分,评语\n';
+  for(var i=0;i<all.length;i++){var s=all[i];csv+=(s.rank||'')+','+s.num+','+s.name;for(var j=0;j<mm;j++)csv+=','+s.scores[j].toFixed(1);csv+=','+s.sum.toFixed(2)+','+s.aver.toFixed(2)+',"'+(s.comment||'').replace(/"/g,'""')+'"\n';}
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='成绩表_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  URL.revokeObjectURL(url);showToast('📥 导出成功！','ok');
+}
+
+// 备份/恢复
+function showBackupRestore(){
+  var h='<div class="card"><h3>💾 数据备份与恢复</h3><p style="color:var(--text2);margin-bottom:12px;">当前共 <strong>'+engine.count()+'</strong> 条记录</p>';
+  h+='<button class="btn btn-pri" onclick="backupData()">📥 导出备份文件</button> <button class="btn btn-out" onclick="document.getElementById(\'restoreFile\').click()">📤 恢复备份</button>';
+  h+='<input type="file" id="restoreFile" accept=".json" style="display:none;" onchange="restoreData(this)"></div>';
+  $('contentArea').innerHTML=h;
+}
+function backupData(){
+  var data={students:engine.toJSON(),time:Date.now(),user:currentUser};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='成绩备份_'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  URL.revokeObjectURL(url);showToast('💾 备份已下载！','ok');
+}
+function restoreData(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();reader.onload=function(e){
+    try{var d=JSON.parse(e.target.result);engine.fromJSON(d.students||d);autoSave();showAll();showToast('📤 数据已恢复！共'+engine.count()+'条','ok');}catch(err){showToast('文件格式错误 ~','err');}
+  };reader.readAsText(file);
+}
+
+// ECharts 可视化
+function showCharts(){
+  var mm=engine.courseN();if(mm===0||engine.count()===0){showToast('暂无数据 ~','info');return;}
+  var all=engine.all();
+  var h='<div class="card"><h3>📈 可视化报表</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
+  h+='<div class="chart-wrap" id="chartDist"></div><div class="chart-wrap" id="chartRadar"></div>';
+  h+='<div class="chart-wrap" id="chartBar" style="grid-column:1/-1;"></div></div></div>';
+  $('contentArea').innerHTML=h;
+  setTimeout(function(){
+    // 分布图(科目1)
+    var d=engine.dist(0);if(d){
+      var chart=echarts.init($('chartDist'));
+      chart.setOption({title:{text:'科目1成绩分布',textStyle:{fontSize:13}},tooltip:{},xAxis:{data:d.items.map(function(x){return x.range;})},yAxis:{},series:[{type:'bar',data:d.items.map(function(x){return x.count;}),itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#3b82f6'},{offset:1,color:'#93c5fd'}])},barWidth:'55%'}],grid:{top:35,right:15,bottom:25,left:35}});
+    }
+    // 雷达图
+    var cs=engine.courseStats(),radarData=cs.map(function(x){return x.avg;});
+    var chart2=echarts.init($('chartRadar'));
+    chart2.setOption({title:{text:'各科平均分对比',textStyle:{fontSize:13}},radar:{indicator:cs.map(function(x,i){return{name:'科目'+(i+1),max:100};})},series:[{type:'radar',data:[{value:radarData,name:'平均分'}],areaStyle:{color:'rgba(59,130,246,0.25)'},lineStyle:{color:'#3b82f6'},itemStyle:{color:'#3b82f6'}}],grid:{top:35,right:15,bottom:25,left:35}});
+    // 总分柱状图
+    var chart3=echarts.init($('chartBar'));
+    chart3.setOption({title:{text:'总分排名',textStyle:{fontSize:13}},tooltip:{},xAxis:{data:all.map(function(s){return s.name;}),axisLabel:{rotate:30,fontSize:10}},yAxis:{},series:[{type:'bar',data:all.map(function(s){return s.sum;}),itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#38bdf8'},{offset:1,color:'#80d8f0'}])},barWidth:'55%'}],grid:{top:35,right:15,bottom:50,left:45}});
+  },200);
+}
+
+// 成绩趋势
+function showTrend(){
+  var hist=getHistory();if(hist.length<2){showToast('需要至少两次数据变更才能看趋势 ~','info');return;}
+  var h='<div class="card"><h3>📈 成绩趋势追踪</h3><p style="color:var(--text2);margin-bottom:8px;">共 <strong>'+hist.length+'</strong> 个历史快照</p>';
+  h+='<div class="chart-wrap" id="chartTrend" style="height:380px;"></div></div>';
+  $('contentArea').innerHTML=h;
+  setTimeout(function(){
+    var times=hist.map(function(x,i){return '快照'+(i+1);});
+    var avgs=hist.map(function(x){var d=x.data||x;if(!d.students||d.students.length===0)return 0;var sum=0;for(var i=0;i<d.students.length;i++)sum+=d.students[i].sum||0;return+(sum/d.students.length).toFixed(1);});
+    var chart=echarts.init($('chartTrend'));
+    chart.setOption({title:{text:'班级平均分变化',textStyle:{fontSize:13}},tooltip:{},xAxis:{data:times},yAxis:{},series:[{type:'line',data:avgs,smooth:true,lineStyle:{color:'#3b82f6',width:3},itemStyle:{color:'#3b82f6'},areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(59,130,246,0.35)'},{offset:1,color:'rgba(59,130,246,0.02)'}])}}],grid:{top:35,right:15,bottom:25,left:45}});
+  },200);
+}
+
+// 审核管理
+function showApproval(){
+  var accounts=getAccounts(),pending=[];
+  for(var u in accounts){if(accounts[u].role==='student'&&accounts[u].status==='pending')pending.push({user:u,acct:accounts[u]});}
+  var h='<div class="card"><h3>✅ 学生注册审核</h3>';
+  if(pending.length===0){h+='<p style="color:var(--text3);">暂无待审核学生 (´-ω-`)</p>';}
+  else{
+    for(var i=0;i<pending.length;i++){var p=pending[i];
+      h+='<div class="approval-item"><div class="ai-info"><span class="ai-name">'+p.user+'</span><span class="ai-detail">学号: '+p.acct.studentId+' | 注册时间: '+new Date(p.acct.createdAt).toLocaleString()+'</span></div><div class="ai-actions"><button class="btn btn-ok btn-sm" onclick="approveStudent(\''+p.user+'\')">通过</button><button class="btn btn-red btn-sm" onclick="rejectStudent(\''+p.user+'\')">拒绝</button></div></div>';
+    }
+  }
+  h+='</div>';$('contentArea').innerHTML=h;
+}
+function approveStudent(user){
+  var a=getAccounts();if(a[user]){a[user].status='approved';saveAccounts(a);showApproval();showToast('✅ '+user+' 已通过审核','ok');}
+}
+function rejectStudent(user){
+  var a=getAccounts();if(a[user]){a[user].status='rejected';saveAccounts(a);showApproval();showToast('已拒绝 '+user,'info');}
+}
+
+// 其他
+function showCourseStats(){var s=engine.courseStats();if(s.length===0){showToast('暂无数据 ~','info');return;}renderTable('📐 各科总分与平均分',['科目','总分','平均分'],s.map(function(x){return['科目'+x.idx,x.total.toFixed(2),x.avg.toFixed(2)];}));}
+function showStudentStats(){var s=engine.studentStats();if(s.length===0){showToast('暂无数据 ~','info');return;}renderTable('👤 每位学生统计',['学号','姓名','总分','平均分'],s.map(function(x){return[x.num,x.name,x.total.toFixed(2),x.avg.toFixed(2)];}));}
+function showDistribution(){
+  var mm=engine.courseN();if(mm===0){showToast('暂无数据 ~','info');return;}
+  var cs=['bf-c0','bf-c1','bf-c2','bf-c3','bf-c4','bf-c5'],h='';
+  for(var i=0;i<mm;i++){var d=engine.dist(i);if(!d)continue;h+='<div class="card"><h3>📉 科目'+d.idx+' 成绩分布</h3><div class="bars">';for(var j=0;j<d.items.length;j++){var it=d.items[j],w=Math.max(it.pct,0.7);h+='<div class="br"><span class="bl">'+it.range+'</span><div class="bt"><div class="bf '+cs[j]+'" style="width:'+w+'%">'+(it.pct>=8?it.pct+'%':'')+'</div></div><span class="bc">'+it.count+'人 ('+it.pct+'%)</span></div>';}h+='</div></div>';}
+  $('contentArea').innerHTML=h;
+}
+function showSearchNum(){$('contentArea').innerHTML='<div class="card"><h3>🎯 按学号查询</h3><div style="display:flex;gap:10px;align-items:end;"><div class="fg"><label>学号</label><input type="number" id="sNum" min="1" placeholder="学号"></div><button class="btn btn-pri" onclick="doSearchNum()">🔍 查询</button></div></div><div id="sr"></div>';setTimeout(function(){var e=$('sNum');if(e)e.focus();},100);}
+function doSearchNum(){var n=parseInt($('sNum').value);if(!n||n<=0){showToast('请输入有效学号 ~','err');return;}var s=engine.findByNum(n);if(!s){$('sr').innerHTML='<div class="card"><p style="color:var(--text3);">未找到学号 '+n+' (´･_･`)</p></div>';return;}$('sr').innerHTML=studentCard(s,true);}
+function showSearchName(){$('contentArea').innerHTML='<div class="card"><h3>🔎 按姓名查询</h3><div style="display:flex;gap:10px;align-items:end;"><div class="fg"><label>姓名</label><input type="text" id="sName" placeholder="姓名"></div><button class="btn btn-pri" onclick="doSearchName()">🔍 查询</button></div></div><div id="sr"></div>';setTimeout(function(){var e=$('sName');if(e)e.focus();},100);}
+function doSearchName(){var n=$('sName').value.trim();if(!n){showToast('请输入姓名 ~','err');return;}var l=engine.findByName(n);if(l.length===0){$('sr').innerHTML='<div class="card"><p style="color:var(--text3);">未找到 "'+n+'"</p></div>';return;}$('sr').innerHTML=l.map(function(s){return studentCard(s,true);}).join('');}
+// Sort by specific course score
+function doSortByCourse(ci){
+  engine.computeAll_ = function(){var s=this.all();for(var i=0;i<this.count();i++);};
+  var all=engine.all();
+  all.sort(function(a,b){return b.scores[ci]-a.scores[ci];});
+  // Rebuild engine order: first clear, then re-add in sorted order
+  var saved=[];
+  for(var i=0;i<all.length;i++){
+    var s=engine.findByNum(all[i].num);if(s)saved.push({num:s.num,name:s.name,scores:s.scores.slice(),comment:s.comment||''});
+  }
+  engine.clear();engine.fromJSON({students:saved,m:engine.courseN()});
+  autoSave();showAll();
+}
+
+function doSort(type){if(type==='desc')engine.sortDesc();else if(type==='asc')engine.sortAsc();else if(type==='num')engine.sortNum();else if(type==='name')engine.sortName();autoSave();showAll();}
+function showClearConfirm(){$('contentArea').innerHTML='<div class="card" style="text-align:center;"><h3>⚠ 确认清空</h3><p style="color:var(--text2);margin:10px 0;">当前有 <strong>'+engine.count()+'</strong> 条记录，不可恢复哦</p><button class="btn btn-red" onclick="doClear()">确认清空</button> <button class="btn btn-out" onclick="showAll()">取消</button></div>';}
+function doClear(){engine.clear();autoSave();showToast('已清空','info');showEmpty();}
+
+// ============================================================
+// 学生端
+// ============================================================
+function showStudentDashboard(){
+  if(!userStudentId){$('studentContent').innerHTML='<div class="card"><p style="text-align:center;color:var(--text3);">未绑定学号 ~</p></div>';return;}
+  $('stuIdDisplay').textContent=userStudentId;
+  var s=engine.findByNum(userStudentId);if(!s){$('studentContent').innerHTML='<div class="card"><p style="text-align:center;color:var(--text3);">暂无你的成绩数据 ~</p></div>';return;}
+  $('studentContent').innerHTML=studentCard(s,true);
+}
+
+// CSV批量导入
+function showCSVImport(){
+  var h='<div class="card"><h3>批量导入CSV</h3><p style="color:var(--text2);margin-bottom:8px;">每行格式：<code>学号,姓名,科目1,科目2,...</code></p>';
+  h+='<div class="fg"><label>粘贴CSV内容</label><textarea id="csvText" rows="6" placeholder="2024001,张三,88,92,78\n2024002,李四,75,85,90"></textarea></div>';
+  h+='<p style="color:var(--text2);margin:8px 0;">或上传CSV文件</p><input type="file" id="csvFile" accept=".csv,.txt" onchange="handleCSVFile(this)">';
+  h+='<div style="margin-top:12px;"><button class="btn btn-pri" onclick="doCSVImport()">导入</button> <button class="btn btn-out" onclick="showAll()">取消</button></div>';
+  h+='<div id="csvResult" style="margin-top:8px;"></div></div>';$('contentArea').innerHTML=h;
+}
+function handleCSVFile(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();reader.onload=function(e){$('csvText').value=e.target.result;};reader.readAsText(file);
+}
+function doCSVImport(){
+  var text=$('csvText').value.trim();if(!text){showToast('请粘贴或上传CSV数据 ~','err');return;}
+  var lines=text.split(/[\n\r]+/).filter(function(l){return l.trim();});
+  var ok=0,fail=0,mm=engine.courseN();
+  for(var i=0;i<lines.length;i++){
+    var parts=lines[i].split(',');if(parts.length<3){fail++;continue;}
+    var num=parseInt(parts[0]),name=parts[1].trim(),scores=[];
+    for(var j=2;j<parts.length;j++)scores.push(parseFloat(parts[j])||0);
+    if(!num||!name){fail++;continue;}
+    if(mm>0&&scores.length!==mm){fail++;continue;}
+    var r=engine.add(num,name,scores);if(r===0)ok++;else fail++;
+  }
+  autoSave();showAll();
+  $('csvResult').innerHTML='<p style="color:var(--text2);">导入完成：<strong style="color:#52c41a;">'+ok+'条成功</strong>'+(fail>0?'，<strong style="color:#ef4444;">'+fail+'条失败</strong>':'')+'</p>';
+}
+
+// 用户管理
+function showUserManage(){
+  var accounts=getAccounts(),users=[];
+  for(var u in accounts)users.push({user:u,acct:accounts[u]});
+  var h='<div class="card"><h3>用户管理</h3>';
+  if(users.length===0){h+='<p style="color:var(--text3);">暂无注册用户</p>';}
+  else{
+    h+='<div class="tbl-wrap"><table><thead><tr><th>用户名</th><th>角色</th><th>学号</th><th>状态</th><th>注册时间</th><th>操作</th></tr></thead><tbody>';
+    for(var i=0;i<users.length;i++){
+      var u=users[i],a=u.acct,st=a.status==='approved'?'已通过':a.status==='pending'?'待审核':a.status==='rejected'?'已拒绝':a.status;
+      h+='<tr><td>'+u.user+'</td><td>'+(a.role==='teacher'?'教师':'学生')+'</td><td>'+(a.studentId||'-')+'</td><td>'+st+'</td><td>'+new Date(a.createdAt).toLocaleDateString()+'</td>';
+      h+='<td>';
+      if(a.status==='pending')h+='<button class="btn-sm btn-sm-edit" onclick="approveStudent(\x27'+u.user+'\x27)">通过</button> ';
+      if(a.status!=='approved')h+='<button class="btn-sm btn-sm-edit" onclick="approveStudent(\x27'+u.user+'\x27)">解封</button> ';
+      h+='<button class="btn-sm btn-sm-del" onclick="deleteUser(\x27'+u.user+'\x27)">删除</button></td></tr>';
+    }
+    h+='</tbody></table></div>';
+  }
+  h+='</div>';$('contentArea').innerHTML=h;
+}
+function deleteUser(uname){
+  if(!confirm('确定删除用户 '+uname+' ？'))return;
+  var a=getAccounts();delete a[uname];saveAccounts(a);showUserManage();showToast('已删除 '+uname,'info');
+}
+
+// ============================================================
+// 侧边栏
+// ============================================================
+var actions={input:showInputForm,display:showAll,export:exportCSV,backup:showBackupRestore,csvImport:showCSVImport,clear:showClearConfirm,courseStats:showCourseStats,studentStats:showStudentStats,distribution:showDistribution,charts:showCharts,trend:showTrend,sortDesc:function(){doSort('desc');},sortAsc:function(){doSort('asc');},sortNum:function(){doSort('num');},sortName:function(){doSort('name');},searchNum:showSearchNum,searchName:showSearchName,approval:showApproval,userManage:showUserManage};
+$('sidebar').addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;var btns=$('sidebar').querySelectorAll('button');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');b.classList.add('active');try{actions[b.dataset.act]();}catch(err){showToast('出错啦: '+err.message,'err');}});
+
+// Tab
+$('tabNav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;var n=b.dataset.tab,bs=$('tabNav').querySelectorAll('button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');b.classList.add('on');var ps=document.querySelectorAll('.tab-pane');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');$('pane-'+n).classList.add('show');if(n==='source')renderSource();});
+
+// 移动端菜单
+function toggleMobileMenu(){
+  var m=document.getElementById('mobileMenu');if(m){m.classList.toggle('show');return;}
+  m=document.createElement('div');m.id='mobileMenu';m.className='mobile-menu show';
+  m.innerHTML='<div class="mm-sidebar" id="mobileSidebar"></div>';
+  var sb=document.getElementById('sidebar').cloneNode(true);
+  m.querySelector('.mm-sidebar').appendChild(sb);
+  m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('show');});
+  document.body.appendChild(m);
+  sb.addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;try{actions[b.dataset.act]();m.classList.remove('show');}catch(err){showToast('出错啦: '+err.message,'err');}});
+}
+
+// ============================================================
+// 源代码
+// ============================================================
+function renderSource(){
+  var c=$('sourceContent');if(c.children.length>0)return;
+  var sections=[
+    {title:'头文件与常量定义',code:'#include <algorithm>\n#include <fstream>\n#include <iomanip>\n#include <iostream>\n#include <limits>\n#include <numeric>\n#include <sstream>\n#include <string>\n#include <vector>\n\n#ifdef _WIN32\n#define NOMINMAX\n#include <windows.h>\n#endif\n\nusing namespace std;\n\nconstexpr int MAX_STUDENTS = 30;\nconstexpr int MAX_COURSES  = 6;\nconst string DATA_FILE = "student.txt";'},
+    {title:'Student 数据结构',code:'struct Student {\n    long long num = 0;\n    string name;\n    vector<double> score;\n    double sum = 0.0;\n    double aver = 0.0;\n    string comment;\n};'},
+    {title:'工具函数 (clearScreen / printLine / pauseConsole)',code:'void clearScreen() {\n#ifdef _WIN32\n    system("cls");\n#else\n    system("clear");\n#endif\n}\n\nvoid printLine(char ch = \x27=\x27, int width = 76) {\n    cout << "\\t" << string(width, ch) << \x27\\n\x27;\n}\n\nvoid pauseConsole() {\n    cout << "\\n\\t按回车继续...";\n    cin.ignore(numeric_limits<streamsize>::max(), \x27\\n\x27);\n    cin.get();\n}'},
+    {title:'核心算法 (computeOneStudent / computeAllStudents)',code:'void computeOneStudent(Student& s) {\n    s.sum = accumulate(s.score.begin(), s.score.end(), 0.0);\n    s.aver = s.score.empty() ? 0.0 : s.sum / s.score.size();\n}\n\nvoid computeAllStudents(vector<Student>& students) {\n    for (auto& s : students) computeOneStudent(s);\n}'},
+    {title:'排名算法 (makeRankList / findRankByNum)',code:'vector<Student> makeRankList(vector<Student> students) {\n    computeAllStudents(students);\n    sort(students.begin(), students.end(),\n         [](const Student& a, const Student& b) {\n        if (a.sum != b.sum) return a.sum > b.sum;\n        return a.num < b.num;\n    });\n    return students;\n}\n\nint findRankByNum(const vector<Student>& stus, long long num) {\n    auto ranked = makeRankList(stus);\n    for (size_t i = 0; i < ranked.size(); ++i)\n        if (ranked[i].num == num) return i + 1;\n    return -1;\n}'},
+    {title:'输入校验 (inputIntRange / inputScore / inputStudentId)',code:'int inputIntRange(const string& prompt, int low, int high) {\n    int value;\n    while (true) {\n        cout << prompt;\n        if (cin >> value && value >= low && value <= high) return value;\n        resetInput();\n        cout << "\\t输入无效。\\n";\n    }\n}\n\nlong long inputStudentId(const string& prompt) {\n    long long value;\n    while (true) {\n        cout << prompt;\n        if (cin >> value && value > 0) return value;\n        resetInput();\n    }\n}\n\ndouble inputScore(const string& prompt) {\n    double value;\n    while (true) {\n        cout << prompt;\n        if (cin >> value && value >= 0.0 && value <= 100.0) return value;\n        resetInput();\n    }\n}'},
+    {title:'四种排序 (sortByScoreDesc / sortByScoreAsc / sortByNum / sortByName)',code:'void sortByScoreDesc(vector<Student>& stus) {\n    computeAllStudents(stus);\n    sort(stus.begin(), stus.end(), [](const Student& a, const Student& b) {\n        if (a.sum != b.sum) return a.sum > b.sum;\n        return a.num < b.num;\n    });\n}\n\nvoid sortByScoreAsc(vector<Student>& stus) {\n    computeAllStudents(stus);\n    sort(stus.begin(), stus.end(), [](const Student& a, const Student& b) {\n        if (a.sum != b.sum) return a.sum < b.sum;\n        return a.num < b.num;\n    });\n}\n\nvoid sortByNum(vector<Student>& stus) {\n    sort(stus.begin(), stus.end(),\n         [](const Student& a, const Student& b) {\n        return a.num < b.num;\n    });\n}\n\nvoid sortByName(vector<Student>& stus) {\n    sort(stus.begin(), stus.end(),\n         [](const Student& a, const Student& b) {\n        if (a.name != b.name) return a.name < b.name;\n        return a.num < b.num;\n    });\n}'},
+    {title:'查询 (searchByNum / searchByName)',code:'void searchByNum(vector<Student>& stus) {\n    if (!hasData(stus)) return;\n    computeAllStudents(stus);\n    long long target = inputStudentId("\\t请输入学号: ");\n    for (const auto& s : stus) {\n        if (s.num == target) {\n            printStudentCard(s, findRankByNum(stus, s.num));\n            return;\n        }\n    }\n    cout << "\\t未找到。\\n";\n}\n\nvoid searchByName(vector<Student>& stus) {\n    if (!hasData(stus)) return;\n    computeAllStudents(stus);\n    string target = inputName("\\t请输入姓名: ");\n    bool found = false;\n    for (const auto& s : stus) {\n        if (s.name == target) {\n            printStudentCard(s, findRankByNum(stus, s.num));\n            found = true;\n        }\n    }\n    if (!found) cout << "\\t未找到。\\n";\n}'},
+    {title:'统计分析 (statisticAnalysis / showCourseStats)',code:'void statisticAnalysis(const vector<Student>& stus, int n, int m) {\n    for (int i = 0; i < m; ++i) {\n        int cnt[6] = {0};\n        for (const auto& s : stus) {\n            double sc = s.score[i];\n            if      (sc < 60.0)  cnt[0]++;\n            else if (sc < 70.0)  cnt[1]++;\n            else if (sc < 80.0)  cnt[2]++;\n            else if (sc < 90.0)  cnt[3]++;\n            else if (sc < 100.0) cnt[4]++;\n            else                 cnt[5]++;\n        }\n        // 输出各分数段人数与占比\n    }\n}\n\nvoid showCourseStats(vector<Student>& stus, int n, int m) {\n    computeAllStudents(stus);\n    for (int i = 0; i < m; ++i) {\n        double sum = 0.0;\n        for (const auto& s : stus) sum += s.score[i];\n        cout << "\\t科目" << i+1 << "  总分: " << sum\n             << "  平均分: " << sum/n << \x27\\n\x27;\n    }\n}'},
+    {title:'文件读写 (writeToFile / readFromFile)',code:'void writeToFile(const vector<Student>& stus, int n, int m) {\n    ofstream fout(DATA_FILE);\n    fout << n << \x27 \x27 << m << \x27\\n\x27;\n    for (const auto& s : stus) {\n        fout << s.num << \x27 \x27 << s.name;\n        for (int j = 0; j < m; ++j) fout << \x27 \x27 << s.score[j];\n        fout << \x27 \x27 << s.sum << \x27 \x27 << s.aver << \x27\\n\x27;\n    }\n}\n\nvoid readFromFile(vector<Student>& stus, int& n, int& m) {\n    ifstream fin(DATA_FILE);\n    int fn, fm; fin >> fn >> fm;\n    for (int i = 0; i < fn; ++i) {\n        Student s; s.score.resize(fm);\n        fin >> s.num >> s.name;\n        for (int j = 0; j < fm; ++j) fin >> s.score[j];\n        stus.push_back(s);\n    }\n    n = fn; m = fm;\n}'},
+    {title:'主程序 (main + menu + switch)',code:'int menu(int n, int m) {\n    clearScreen();\n    printTitle("学生成绩管理系统");\n    cout << "\\t 1. 录入学生信息\\n";\n    cout << "\\t 2. 统计每门课程总分和平均分\\n";\n    // ... 更多菜单项 ...\n    cout << "\\t 0. 退出系统\\n";\n    return inputIntRange("\\t请输入菜单编号: ", 0, 13);\n}\n\nint main() {\n    setupConsole();\n    vector<Student> students;\n    int n = 0, m = 0;\n    while (true) {\n        int choice = menu(students.size(), m);\n        switch (choice) {\n        case  1: inputRecords(students, n, m);    break;\n        case  2: showCourseStats(students, n, m); break;\n        case  3: showStudentStats(students);      break;\n        case  4: sortByScoreDesc(students);       break;\n        case  5: sortByScoreAsc(students);        break;\n        case  6: sortByNum(students);             break;\n        case  7: sortByName(students);            break;\n        case  8: searchByNum(students);           break;\n        case  9: searchByName(students);          break;\n        case 10: statisticAnalysis(students,n,m); break;\n        case 11: printRecords(students, m);       break;\n        case 12: writeToFile(students, n, m);     break;\n        case 13: readFromFile(students, n, m);    break;\n        case  0: return 0;\n        }\n    }\n}'}
+  ];
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  var h='';
+  for(var i=0;i<sections.length;i++){
+    var s=sections[i];
+    h+='<details'+(i===0?' open':'')+'><summary>'+s.title+'</summary><pre><code class="language-cpp">'+esc(s.code)+'</code></pre></details>';
+  }
+  c.innerHTML=h;
+  c.querySelectorAll('pre code').forEach(function(b){hljs.highlightElement(b);});
+}
+
+// ============================================================
+// PWA Service Worker 注册
+// ============================================================
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){})}
+
+// 启动
+document.addEventListener('DOMContentLoaded',function(){$('authUser').focus();});
+</script>
+</body>
+</html>

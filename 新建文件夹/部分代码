@@ -1,0 +1,633 @@
+#include <algorithm>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <numeric>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#ifdef _WIN32
+#define NOMINMAX
+#include <windows.h>
+#endif
+
+using namespace std;
+
+constexpr int MAX_STUDENTS = 30;
+constexpr int MAX_COURSES = 6;
+const string DATA_FILE = "student.txt";
+
+struct Student {
+    long long num = 0;
+    string name;
+    vector<double> score;
+    double sum = 0.0;
+    double aver = 0.0;
+};
+
+void setupConsole() {
+}
+
+void clearScreen() {
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+void printLine(char ch = '=', int width = 76) {
+    cout << "\t" << string(width, ch) << '\n';
+}
+
+void printTitle(const string& title) {
+    printLine('=');
+    cout << "\t" << title << '\n';
+    printLine('=');
+}
+
+void pauseConsole() {
+    cout << "\n\t按回车继续...";
+    cin.ignore((numeric_limits<streamsize>::max)(), '\n');
+    cin.get();
+}
+
+void resetInput() {
+    cin.clear();
+    cin.ignore((numeric_limits<streamsize>::max)(), '\n');
+}
+
+void computeOneStudent(Student& s) {
+    s.sum = accumulate(s.score.begin(), s.score.end(), 0.0);
+    s.aver = s.score.empty() ? 0.0 : s.sum / static_cast<double>(s.score.size());
+}
+
+void computeAllStudents(vector<Student>& students) {
+    for (auto& s : students) {
+        computeOneStudent(s);
+    }
+}
+
+bool hasData(const vector<Student>& students) {
+    if (students.empty()) {
+        printTitle("提示");
+        cout << "\t当前没有学生记录，请先录入数据或从文件读取数据。\n";
+        printLine('=');
+        return false;
+    }
+    return true;
+}
+
+int inputIntRange(const string& prompt, int low, int high) {
+    int value;
+    while (true) {
+        cout << prompt;
+        if (cin >> value && value >= low && value <= high) {
+            return value;
+        }
+        resetInput();
+        cout << "\t输入无效，请输入 " << low << " 到 " << high << " 之间的整数。\n";
+    }
+}
+
+long long inputStudentId(const string& prompt) {
+    long long value;
+    while (true) {
+        cout << prompt;
+        if (cin >> value && value > 0) {
+            return value;
+        }
+        resetInput();
+        cout << "\t学号输入无效，请重新输入正整数。\n";
+    }
+}
+
+double inputScore(const string& prompt) {
+    double value;
+    while (true) {
+        cout << prompt;
+        if (cin >> value && value >= 0.0 && value <= 100.0) {
+            return value;
+        }
+        resetInput();
+        cout << "\t成绩输入无效，请输入 0 到 100 之间的分数。\n";
+    }
+}
+
+string inputName(const string& prompt) {
+    string name;
+    cout << prompt;
+    cin >> name;
+    return name;
+}
+
+vector<Student> makeRankList(vector<Student> students) {
+    computeAllStudents(students);
+    sort(students.begin(), students.end(), [](const Student& a, const Student& b) {
+        if (a.sum != b.sum) {
+            return a.sum > b.sum;
+        }
+        return a.num < b.num;
+        });
+    return students;
+}
+
+int findRankByNum(const vector<Student>& students, long long num) {
+    vector<Student> ranked = makeRankList(students);
+    for (size_t i = 0; i < ranked.size(); ++i) {
+        if (ranked[i].num == num) {
+            return static_cast<int>(i) + 1;
+        }
+    }
+    return -1;
+}
+
+void printStudentCard(const Student& s, int rank) {
+    printLine('-');
+    cout << "\t学号: " << s.num << '\n';
+    cout << "\t姓名: " << s.name << '\n';
+    if (rank > 0) {
+        cout << "\t总分排名: 第 " << rank << " 名\n";
+    }
+    cout << fixed << setprecision(2);
+    for (size_t i = 0; i < s.score.size(); ++i) {
+        cout << "\t科目" << i + 1 << "成绩: " << s.score[i] << '\n';
+    }
+    cout << "\t总分: " << s.sum << '\n';
+    cout << "\t平均分: " << s.aver << '\n';
+    printLine('-');
+}
+
+void printRecords(const vector<Student>& students, int m) {
+    if (!hasData(students)) {
+        return;
+    }
+
+    printTitle("学生成绩总表");
+    cout << left;
+    cout << "\t"
+        << setw(6) << "序号"
+        << setw(16) << "学号"
+        << setw(14) << "姓名";
+
+    for (int i = 0; i < m; ++i) {
+        cout << setw(10) << ("科目" + to_string(i + 1));
+    }
+    cout << setw(12) << "总分"
+        << setw(12) << "平均分"
+        << '\n';
+
+    printLine('-');
+
+    cout << fixed << setprecision(2);
+    for (size_t i = 0; i < students.size(); ++i) {
+        const auto& s = students[i];
+        cout << "\t"
+            << setw(6) << i + 1
+            << setw(16) << s.num
+            << setw(14) << s.name;
+        for (int j = 0; j < m; ++j) {
+            cout << setw(10) << s.score[j];
+        }
+        cout << setw(12) << s.sum
+            << setw(12) << s.aver
+            << '\n';
+    }
+
+    printLine('=');
+}
+
+void inputRecords(vector<Student>& students, int& n, int& m) {
+    clearScreen();
+    printTitle("录入学生信息");
+
+    n = inputIntRange("\t请输入学生人数(1-30): ", 1, MAX_STUDENTS);
+    m = inputIntRange("\t请输入科目数(1-6): ", 1, MAX_COURSES);
+
+    students.clear();
+    students.reserve(n);
+
+    for (int i = 0; i < n; ++i) {
+        Student s;
+        s.score.resize(m);
+
+        cout << "\n\t正在录入第 " << i + 1 << " 位学生:\n";
+        s.num = inputStudentId("\t  学号: ");
+        s.name = inputName("\t  姓名: ");
+
+        for (int j = 0; j < m; ++j) {
+            s.score[j] = inputScore("\t  科目" + to_string(j + 1) + "成绩: ");
+        }
+
+        computeOneStudent(s);
+        students.push_back(s);
+    }
+
+    printLine('=');
+    cout << "\t数据录入完成，共录入 " << students.size() << " 位学生。\n";
+    printLine('=');
+}
+
+void showCourseStats(vector<Student>& students, int n, int m) {
+    if (!hasData(students)) {
+        return;
+    }
+
+    computeAllStudents(students);
+    printTitle("各科总分与平均分");
+
+    cout << fixed << setprecision(2);
+    for (int i = 0; i < m; ++i) {
+        double sum = 0.0;
+        for (const auto& s : students) {
+            sum += s.score[i];
+        }
+        cout << "\t科目" << i + 1
+            << "  总分: " << setw(8) << sum
+            << "  平均分: " << setw(8) << (sum / n)
+            << '\n';
+    }
+
+    printLine('=');
+}
+
+void showStudentStats(vector<Student>& students) {
+    if (!hasData(students)) {
+        return;
+    }
+
+    computeAllStudents(students);
+    printTitle("每位学生总分与平均分");
+
+    cout << fixed << setprecision(2);
+    for (size_t i = 0; i < students.size(); ++i) {
+        cout << "\t第 " << i + 1 << " 位  "
+            << "学号: " << students[i].num
+            << "  姓名: " << students[i].name
+            << "  总分: " << students[i].sum
+            << "  平均分: " << students[i].aver
+            << '\n';
+    }
+
+    printLine('=');
+}
+
+void sortByScoreDesc(vector<Student>& students) {
+    if (!hasData(students)) {
+        return;
+    }
+
+    computeAllStudents(students);
+    sort(students.begin(), students.end(), [](const Student& a, const Student& b) {
+        if (a.sum != b.sum) {
+            return a.sum > b.sum;
+        }
+        return a.num < b.num;
+        });
+}
+
+void sortByScoreAsc(vector<Student>& students) {
+    if (!hasData(students)) {
+        return;
+    }
+
+    computeAllStudents(students);
+    sort(students.begin(), students.end(), [](const Student& a, const Student& b) {
+        if (a.sum != b.sum) {
+            return a.sum < b.sum;
+        }
+        return a.num < b.num;
+        });
+}
+
+void sortByNum(vector<Student>& students) {
+    if (!hasData(students)) {
+        return;
+    }
+
+    sort(students.begin(), students.end(), [](const Student& a, const Student& b) {
+        return a.num < b.num;
+        });
+}
+
+void sortByName(vector<Student>& students) {
+    if (!hasData(students)) {
+        return;
+    }
+
+    sort(students.begin(), students.end(), [](const Student& a, const Student& b) {
+        if (a.name != b.name) {
+            return a.name < b.name;
+        }
+        return a.num < b.num;
+        });
+}
+
+void searchByNum(vector<Student>& students) {
+    if (!hasData(students)) {
+        return;
+    }
+
+    computeAllStudents(students);
+    printTitle("按学号查询");
+
+    long long target = inputStudentId("\t请输入要查询的学号: ");
+
+    for (const auto& s : students) {
+        if (s.num == target) {
+            int rank = findRankByNum(students, s.num);
+            printStudentCard(s, rank);
+            return;
+        }
+    }
+
+    cout << "\t未找到该学号对应的学生信息。\n";
+    printLine('=');
+}
+
+void searchByName(vector<Student>& students) {
+    if (!hasData(students)) {
+        return;
+    }
+
+    computeAllStudents(students);
+    printTitle("按姓名查询");
+
+    string target = inputName("\t请输入要查询的姓名: ");
+    bool found = false;
+
+    for (const auto& s : students) {
+        if (s.name == target) {
+            int rank = findRankByNum(students, s.num);
+            printStudentCard(s, rank);
+            found = true;
+        }
+    }
+
+    if (!found) {
+        cout << "\t未找到该姓名对应的学生信息。\n";
+        printLine('=');
+    }
+}
+
+void statisticAnalysis(const vector<Student>& students, int n, int m) {
+    if (!hasData(students)) {
+        return;
+    }
+
+    printTitle("成绩分布统计分析");
+    cout << fixed << setprecision(2);
+
+    for (int i = 0; i < m; ++i) {
+        int cnt[6] = { 0, 0, 0, 0, 0, 0 };
+
+        for (const auto& s : students) {
+            double sc = s.score[i];
+            if (sc < 60.0) cnt[0]++;
+            else if (sc < 70.0) cnt[1]++;
+            else if (sc < 80.0) cnt[2]++;
+            else if (sc < 90.0) cnt[3]++;
+            else if (sc < 100.0) cnt[4]++;
+            else cnt[5]++;
+        }
+
+        cout << "\t科目" << i + 1 << ":\n";
+        printLine('-');
+        cout << "\t分数段        人数        比例\n";
+        cout << "\t<60          " << setw(8) << cnt[0] << 100.0 * cnt[0] / n << "%\n";
+        cout << "\t60-69        " << setw(8) << cnt[1] << 100.0 * cnt[1] / n << "%\n";
+        cout << "\t70-79        " << setw(8) << cnt[2] << 100.0 * cnt[2] / n << "%\n";
+        cout << "\t80-89        " << setw(8) << cnt[3] << 100.0 * cnt[3] / n << "%\n";
+        cout << "\t90-99        " << setw(8) << cnt[4] << 100.0 * cnt[4] / n << "%\n";
+        cout << "\t100          " << setw(8) << cnt[5] << 100.0 * cnt[5] / n << "%\n";
+        printLine('-');
+    }
+
+    printLine('=');
+}
+
+void writeToFile(const vector<Student>& students, int n, int m) {
+    if (!hasData(students)) {
+        return;
+    }
+
+    vector<Student> temp = students;
+    computeAllStudents(temp);
+
+    ofstream fout(DATA_FILE);
+    if (!fout) {
+        printTitle("写入失败");
+        cout << "\t无法打开文件: " << DATA_FILE << '\n';
+        printLine('=');
+        return;
+    }
+
+    fout << n << ' ' << m << '\n';
+    fout << fixed << setprecision(2);
+
+    for (const auto& s : temp) {
+        fout << s.num << ' ' << s.name;
+        for (int j = 0; j < m; ++j) {
+            fout << ' ' << s.score[j];
+        }
+        fout << ' ' << s.sum << ' ' << s.aver << '\n';
+    }
+
+    printTitle("写入完成");
+    cout << "\t数据已成功写入文件: " << DATA_FILE << '\n';
+    printLine('=');
+}
+
+void readFromFile(vector<Student>& students, int& n, int& m) {
+    ifstream fin(DATA_FILE);
+    if (!fin) {
+        printTitle("读取失败");
+        cout << "\t无法打开文件: " << DATA_FILE << '\n';
+        printLine('=');
+        return;
+    }
+
+    int fileN = 0;
+    int fileM = 0;
+    if (!(fin >> fileN >> fileM)) {
+        printTitle("读取失败");
+        cout << "\t文件格式错误。\n";
+        printLine('=');
+        return;
+    }
+
+    if (fileN <= 0 || fileN > MAX_STUDENTS || fileM <= 0 || fileM > MAX_COURSES) {
+        printTitle("读取失败");
+        cout << "\t文件中的人数或科目数超出范围。\n";
+        printLine('=');
+        return;
+    }
+
+    fin.ignore((numeric_limits<streamsize>::max)(), '\n');
+
+    vector<Student> temp;
+    temp.reserve(fileN);
+
+    for (int i = 0; i < fileN; ++i) {
+        string line;
+        getline(fin, line);
+        if (line.empty()) {
+            --i;
+            continue;
+        }
+
+        istringstream iss(line);
+        Student s;
+        s.score.resize(fileM);
+
+        if (!(iss >> s.num >> s.name)) {
+            printTitle("读取失败");
+            cout << "\t第 " << i + 1 << " 条记录格式错误。\n";
+            printLine('=');
+            return;
+        }
+
+        for (int j = 0; j < fileM; ++j) {
+            if (!(iss >> s.score[j])) {
+                printTitle("读取失败");
+                cout << "\t第 " << i + 1 << " 条记录成绩数据不完整。\n";
+                printLine('=');
+                return;
+            }
+        }
+
+        computeOneStudent(s);
+        temp.push_back(s);
+    }
+
+    students = move(temp);
+    n = fileN;
+    m = fileM;
+
+    printTitle("读取完成");
+    cout << "\t已成功从文件读取 " << n << " 条学生记录。\n";
+    printLine('=');
+    printRecords(students, m);
+}
+
+int menu(int currentStudents, int currentCourses) {
+    clearScreen();
+    printTitle("学生成绩管理系统");
+
+    cout << "\t当前记录数: " << currentStudents
+        << " 人    当前科目数: " << currentCourses << '\n';
+    printLine('-');
+    cout << "\t 1. 录入学生信息\n";
+    cout << "\t 2. 统计每门课程总分和平均分\n";
+    cout << "\t 3. 统计每位学生总分和平均分\n";
+    cout << "\t 4. 按总分从高到低排序\n";
+    cout << "\t 5. 按总分从低到高排序\n";
+    cout << "\t 6. 按学号从小到大排序\n";
+    cout << "\t 7. 按姓名字典序排序\n";
+    cout << "\t 8. 按学号查询\n";
+    cout << "\t 9. 按姓名查询\n";
+    cout << "\t10. 成绩分布统计分析\n";
+    cout << "\t11. 显示全部记录\n";
+    cout << "\t12. 将记录写入文件\n";
+    cout << "\t13. 从文件读取记录\n";
+    cout << "\t 0. 退出系统\n";
+    printLine('-');
+
+    return inputIntRange("\t请输入菜单编号: ", 0, 13);
+}
+
+int main() {
+    setupConsole();
+
+    vector<Student> students;
+    int n = 0;
+    int m = 0;
+
+    while (true) {
+        int choice = menu(static_cast<int>(students.size()), m);
+
+        switch (choice) {
+        case 1:
+            inputRecords(students, n, m);
+            pauseConsole();
+            break;
+        case 2:
+            clearScreen();
+            showCourseStats(students, n, m);
+            pauseConsole();
+            break;
+        case 3:
+            clearScreen();
+            showStudentStats(students);
+            pauseConsole();
+            break;
+        case 4:
+            clearScreen();
+            sortByScoreDesc(students);
+            printTitle("按总分从高到低排序结果");
+            printRecords(students, m);
+            pauseConsole();
+            break;
+        case 5:
+            clearScreen();
+            sortByScoreAsc(students);
+            printTitle("按总分从低到高排序结果");
+            printRecords(students, m);
+            pauseConsole();
+            break;
+        case 6:
+            clearScreen();
+            sortByNum(students);
+            printTitle("按学号从小到大排序结果");
+            printRecords(students, m);
+            pauseConsole();
+            break;
+        case 7:
+            clearScreen();
+            sortByName(students);
+            printTitle("按姓名字典序排序结果");
+            printRecords(students, m);
+            pauseConsole();
+            break;
+        case 8:
+            clearScreen();
+            searchByNum(students);
+            pauseConsole();
+            break;
+        case 9:
+            clearScreen();
+            searchByName(students);
+            pauseConsole();
+            break;
+        case 10:
+            clearScreen();
+            statisticAnalysis(students, n, m);
+            pauseConsole();
+            break;
+        case 11:
+            clearScreen();
+            computeAllStudents(students);
+            printRecords(students, m);
+            pauseConsole();
+            break;
+        case 12:
+            clearScreen();
+            writeToFile(students, n, m);
+            pauseConsole();
+            break;
+        case 13:
+            clearScreen();
+            readFromFile(students, n, m);
+            pauseConsole();
+            break;
+        case 0:
+            clearScreen();
+            printTitle("系统退出");
+            cout << "\t程序已结束，感谢使用。\n";
+            printLine('=');
+            return 0;
+        }
+    }
+}
