@@ -1,5 +1,5 @@
 // Service Worker — 离线缓存
-var CACHE = 'sgms-v3';
+var CACHE = 'sgms-v4';
 var URLS = [
   './',
   './index.html',
