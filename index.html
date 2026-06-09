@@ -1094,6 +1094,7 @@ function toggleMobileMenu(){
   m=document.createElement('div');m.id='mobileMenu';m.className='mobile-menu show';
   m.innerHTML='<div class="mm-sidebar" id="mobileSidebar"></div>';
   var sb=document.getElementById('sidebar').cloneNode(true);
+  sb.style.display='block'; sb.style.minWidth='200px';
   m.querySelector('.mm-sidebar').appendChild(sb);
   m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('show');});
   document.body.appendChild(m);
