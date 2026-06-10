@@ -815,21 +815,42 @@ function studentCard(s,showComment){
 // ============================================================
 // 教师端功能
 // ============================================================
-function showInputForm(){$('contentArea').innerHTML='<div class="card"><h3>📝 录入学生信息</h3><div class="fgrid"><div class="fg"><label>学生人数 (1-100)</label><input type="number" id="inN" min="1" max="100" value="3"></div><div class="fg"><label>课程数 (1-7)</label><input type="number" id="inM" min="1" max="7" value="3"></div></div><div style="margin-top:10px;"><button class="btn btn-pri" onclick="startInput()">✨ 开始录入</button> <button class="btn btn-out" onclick="loadDemo()">🎲 加载演示</button></div></div><div id="batchArea"></div>';}
-function startInput(){
-  var n=Math.max(1,Math.min(100,parseInt($('inN').value)||3)),mm=Math.max(1,Math.min(7,parseInt($('inM').value)||3));
-  engine.clear();autoSave();
-  var h='<div class="card"><h3>逐条录入 ('+n+'人, '+mm+'科)</h3><div style="margin-bottom:8px;font-size:0.82rem;color:var(--text3);">当前: <strong id="curIdx" style="color:#3b82f6;">第 1 位</strong> | 进度: <span id="prog">0</span>/'+n+'</div>';
-  h+='<div class="fgrid"><div class="fg"><label>学号</label><input type="number" id="fNum" min="1" placeholder="正整数"></div><div class="fg"><label>姓名</label><input type="text" id="fName" placeholder="姓名"></div></div><div class="fgrid" style="margin-top:6px;" id="scoreFields">';
-  for(var j=0;j<mm;j++)h+='<div class="fg"><label>'+courseNames[j]+' (0-100)</label><input type="number" id="fS'+j+'" min="0" max="100" step="0.5" placeholder="0-100"></div>';
-  h+='</div><div style="margin-top:10px;"><button class="btn btn-pri" onclick="addOne('+n+','+mm+')">✨ 提交并继续</button> <button class="btn btn-out" onclick="finishInput()">完成</button></div></div>';
-  $('batchArea').innerHTML=h;window._bt={n:n,m:mm,done:0};setTimeout(function(){$('fNum').focus();},100);
+function showInputForm(){
+  var h='<div class="card"><h3>📝 录入学生信息</h3>';
+  h+='<div class="fgrid"><div class="fg"><label>学生人数 (1-100)</label><input type="number" id="inN" min="1" max="100" value="3"></div></div>';
+  h+='<p style="font-size:0.8rem;color:var(--text2);margin:4px 0;">选择要录入的课程（最多'+MAX_COURSES+'门）：</p>';
+  h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;" id="courseChecks">';
+  for(var i=0;i<courseNames.length;i++){
+    h+='<label style="display:flex;align-items:center;gap:3px;font-size:0.82rem;cursor:pointer;background:var(--surface2);padding:5px 10px;border-radius:14px;border:1px solid var(--border);"><input type="checkbox" value="'+i+'" id="cc'+i+'" '+(i<3?'checked':'')+' style="accent-color:#3b82f6;">'+courseNames[i]+'</label>';
+  }
+  h+='</div><p style="font-size:0.74rem;color:var(--text3);" id="ccMsg"></p>';
+  h+='<button class="btn btn-pri" onclick="startInput()">✨ 开始录入</button> <button class="btn btn-out" onclick="loadDemo()">🎲 加载演示</button>';
+  h+='</div><div id="batchArea"></div>';
+  $('contentArea').innerHTML=h;
 }
-function addOne(total,mm){
+function startInput(){
+  var n=Math.max(1,Math.min(100,parseInt($('inN').value)||3));
+  // 读取选中的课程
+  var selIdx=[];
+  for(var i=0;i<courseNames.length;i++){
+    var cb=$('cc'+i); if(cb&&cb.checked) selIdx.push(i);
+  }
+  if(selIdx.length===0){showToast('请至少选一门课程 ~','err');return;}
+  if(selIdx.length>MAX_COURSES){$('ccMsg').innerHTML='<span style=\"color:#e85d75;\">⚠ 最多选'+MAX_COURSES+'门课程！</span>';return;}
+  $('ccMsg').innerHTML='';
+  engine.clear();autoSave();
+  var mm=selIdx.length;
+  var h='<div class="card"><h3>逐条录入 ('+n+'人, '+mm+'门)</h3><div style="margin-bottom:8px;font-size:0.82rem;color:var(--text3);">当前: <strong id="curIdx" style="color:#3b82f6;">第 1 位</strong> | 进度: <span id="prog">0</span>/'+n+'</div>';
+  h+='<div class="fgrid"><div class="fg"><label>学号</label><input type="number" id="fNum" min="1" placeholder="正整数"></div><div class="fg"><label>姓名</label><input type="text" id="fName" placeholder="姓名"></div></div><div class="fgrid" style="margin-top:6px;" id="scoreFields">';
+  for(var j=0;j<mm;j++)h+='<div class="fg"><label>'+courseNames[selIdx[j]]+' (0-100)</label><input type="number" id="fS'+j+'" min="0" max="100" step="0.5" placeholder="0-100"></div>';
+  h+='</div><div style="margin-top:10px;"><button class="btn btn-pri" onclick="addOne('+n+','+mm+','+JSON.stringify(selIdx)+')">✨ 提交并继续</button> <button class="btn btn-out" onclick="finishInput()">完成</button></div></div>';
+  $('batchArea').innerHTML=h;window._bt={n:n,m:mm,sel:selIdx,done:0};setTimeout(function(){$('fNum').focus();},100);
+}
+function addOne(total,mm,selIdx){
   var num=parseInt($('fNum').value),name=$('fName').value.trim();
   if(!num||num<=0){showToast('请输入有效学号 ~','err');$('fNum').focus();return;}if(!name){showToast('请输入姓名 ~','err');$('fName').focus();return;}
   var scores=[];
-  for(var j=0;j<mm;j++){var v=parseFloat($('fS'+j).value);if(isNaN(v)||v<0||v>100){showToast(courseNames[j]+'成绩需0~100','err');$('fS'+j).focus();return;}scores.push(v);}
+  for(var j=0;j<mm;j++){var v=parseFloat($('fS'+j).value);if(isNaN(v)||v<0||v>100){showToast(courseNames[selIdx[j]]+'成绩需0~100','err');$('fS'+j).focus();return;}scores.push(v);}
   var r=engine.add(num,name,scores);if(r===-1){showToast('已达上限100人 >_<','err');return;}if(r===-2){showToast('课程数不一致','err');return;}
   window._bt.done++;autoSave();showToast('✨ '+name+' ('+window._bt.done+'/'+total+')','ok');
   $('fNum').value='';$('fName').value='';for(var j=0;j<mm;j++)$('fS'+j).value='';
