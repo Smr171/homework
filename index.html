@@ -376,7 +376,7 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
 
 /* 源码/说明 */
 .src-wrap { flex:1; overflow-y:auto; padding:16px 20px; }
-.src-wrap pre { border-radius:14px; box-shadow:0 3px 14px rgba(0,0,0,0.05); border:1px solid var(--border); margin-bottom:12px; font-size:0.79rem; line-height:1.55; background:#f6f8fa; }
+.src-wrap pre { border-radius:14px; box-shadow:0 3px 14px rgba(0,0,0,0.05); border:1px solid var(--border); margin-bottom:12px; font-size:0.79rem; line-height:1.55; background:#f6f8fa; overflow-x:auto; -webkit-overflow-scrolling:touch; }
 .src-wrap pre code { font-family:'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace; }
 [data-theme="dark"] .src-wrap pre { background:#0d1117; border-color:#21262d; box-shadow:0 3px 14px rgba(0,0,0,0.3); }
 [data-theme="dark"] .src-wrap pre code { color:#c9d1d9; }
@@ -522,14 +522,10 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
     <div class="tab-pane" id="pane-source"><div class="src-wrap" id="sourceContent"></div></div>
     <div class="tab-pane" id="pane-about">
       <div class="abt-grid">
-        <div class="feat"><div class="fi">🧑‍🏫</div><h3>教师管理端</h3><p>完整的学生成绩管理：录入、增删改查、统计、排序、可视化报表、评语、审核学生注册。</p></div>
-        <div class="feat"><div class="fi">🎒</div><h3>学生查分端</h3><p>学生注册后经教师审核通过，即可查看个人成绩、排名、教师评语，只读模式安全可靠。</p></div>
-        <div class="feat"><div class="fi">📊</div><h3>ECharts可视化</h3><p>成绩分布柱状图+饼图、各科对比雷达图、总分直方图，交互式图表支持悬停查看详情。</p></div>
-        <div class="feat"><div class="fi">💬</div><h3>教师评语</h3><p>教师可为每位学生撰写个性化评语，学生端同步显示。支持编辑修改。</p></div>
-        <div class="feat"><div class="fi">📥</div><h3>导出Excel</h3><p>一键导出成绩总表为CSV文件（Excel可打开），含时间戳文件名。</p></div>
-        <div class="feat"><div class="fi">🌙</div><h3>深色模式</h3><p>点击顶栏月亮按钮切换暗色主题，偏好自动保存。</p></div>
-        <div class="feat"><div class="fi">📱</div><h3>响应式布局</h3><p>适配桌面/平板/手机，小屏自动折叠侧边栏为汉堡菜单。</p></div>
-        <div class="feat"><div class="fi">⚡</div><h3>C++ WASM驱动</h3><p>核心算法编译为WebAssembly运行，JS界面层，内置降级方案。</p></div>
+        <div class="feat"><div class="fi">🧑‍🏫</div><h3>教师端</h3><p>录入、增删改查、统计分析、排序、可视化报表、评语、审核学生注册。</p></div>
+        <div class="feat"><div class="fi">🎒</div><h3>学生端</h3><p>注册审核后查看个人成绩、排名、教师评语，只读模式安全可靠。</p></div>
+        <div class="feat"><div class="fi">📊</div><h3>数据可视化</h3><p>ECharts成绩分布图、各科雷达图；支持导出CSV、深色模式、响应式布局。</p></div>
+	        <div class="feat"><div class="fi">⚡</div><h3>C++ WebAssembly</h3><p>核心算法编译为WebAssembly运行，JS界面层，内置降级方案。</p></div>
         <div class="feat" style="grid-column:1/-1;"><div class="fi">🏗</div><h3>核心数据结构</h3><div class="code-block"><span class="cm">// 系统核心数据模型</span>
 <span class="kw">struct</span> <span class="tp">Student</span> { <span class="tp">long long</span> num; <span class="tp">string</span> name; <span class="tp">vector</span>&lt;<span class="tp">double</span>&gt; score; <span class="tp">double</span> sum, aver; <span class="tp">string</span> comment; };
 <span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_STUDENTS</span> = <span class="st">30</span>; <span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_COURSES</span> = <span class="st">6</span>;</div></div>
