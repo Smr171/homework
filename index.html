@@ -744,7 +744,7 @@ function doAuth(){
 }
 
 function loginUser(user,acct){
-  currentUser=user;currentRole=acct.role;userStudentId=acct.studentId||null;
+  currentUser=user;currentRole=acct.role||(acct.studentId?'student':'teacher');userStudentId=acct.studentId||null;
   document.getElementById('curUser').textContent=user;
   document.getElementById('authOverlay').classList.add('hidden');document.getElementById('appWrap').classList.add('active');
   document.getElementById('authUser').value='';document.getElementById('authPass').value='';
@@ -757,7 +757,8 @@ function loginUser(user,acct){
     badge.textContent='🧑‍🏫 教师';badge.className='role-badge teacher';loadCurFromClass();updateStats();if(engine.count()>0)showAll();
   }else{
     document.getElementById('teacherUI').style.display='none';document.getElementById('studentUI').style.display='flex';document.getElementById('statusBar').style.display='none';
-    badge.textContent='🎒 学生';badge.className='role-badge student';showStudentDashboard();
+    badge.textContent='🎒 学生';badge.className='role-badge student';
+    showStudentDashboard();
   }
   showToast('欢迎回来，'+user+'！🌸','ok');
 }
