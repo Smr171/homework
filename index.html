@@ -550,13 +550,13 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
     EN --> WASM[C++ WebAssembly]
     EN --> JS[JavaScript 降级]</div></div>
 	        <div class="feat" style="grid-column:1/-1;"><div class="fi">🗄</div><h3>数据ER图</h3><div class="mermaid" style="background:#fff;border-radius:10px;padding:8px;">erDiagram
-    Teacher ||--o{ Class : creates
-    Class ||--o{ Student : contains
-    Student ||--|| Grade : has
-    Teacher { string username, string password }
-    Class { string id, string name, string inviteCode }
-    Student { long num, string name }
-    Grade { double scores[], double sum, double aver, float gpa, string comment }</div></div>
+    Teacher ||--o{ Class : manages
+    Class ||--o{ Student : enrolls
+    Student ||--|| GradeRecord : owns
+    Teacher { string name, string password }
+    Class { string name, string inviteCode }
+    Student { int stuId, string name }
+    GradeRecord { int scores, float total, float average, float gpa, string comment }</div></div>
 	      </div>
     </div>
   </div>
