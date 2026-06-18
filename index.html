@@ -30,6 +30,10 @@
 <!-- ECharts -->
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <style>
 /* ============================================================
@@ -558,8 +562,25 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
 <div id="toastBox"></div>
 
 <script>
+// ==================== Firebase 配置 ====================
+var firebaseConfig = {
+  apiKey: "AIzaSyD-YOUR-API-KEY",
+  authDomain: "YOUR-PROJECT.firebaseapp.com",
+  projectId: "YOUR-PROJECT-ID",
+  storageBucket: "YOUR-PROJECT.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "1:000000000000:web:xxxxxxxxxxxx"
+};
+firebase.initializeApp(firebaseConfig);
+var fbAuth = firebase.auth();
+var fbDB = firebase.firestore();
+fbDB.settings({ merge: true });
+var fbReady = false;
+fbAuth.onAuthStateChanged(function(u){ fbReady = true; });
+console.log('Firebase SDK ready');
+
 // ============================================================
-// 樱花飘落
+// 星空背景
 // ============================================================
 (function initStars(){
   var c=document.getElementById('sakuraCanvas');if(!c)return;
