@@ -539,16 +539,17 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
 <span class="kw">struct</span> <span class="tp">Student</span> { <span class="tp">long long</span> num; <span class="tp">string</span> name; <span class="tp">vector</span>&lt;<span class="tp">double</span>&gt; score; <span class="tp">double</span> sum, aver; <span class="tp">string</span> comment; };
 <span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_STUDENTS</span> = <span class="st">100</span>; <span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_COURSES</span> = <span class="st">7</span>;</div></div>
 	        <div class="feat" style="grid-column:1/-1;"><div class="fi">📐</div><h3>系统架构图</h3><div class="mermaid" style="background:#fff;border-radius:10px;padding:8px;">graph TD
-    U[用户浏览器] --> L[登录/注册]
-    L -->|教师| TA[教师端界面]
-    L -->|学生| SA[学生端界面]
-    TA --> CL[班级管理]
-    CL --> CR[成绩录入/编辑/统计]
-    SA --> VW[个人成绩查看]
+    U[用户] --> L[登录/注册]
+    L -->|教师| TA[教师端]
+    L -->|学生| SA[学生端]
+    TA --> CL[创建班级/邀请码]
+    CL --> CR[成绩录入/统计/排序]
+    SA --> JC[输入邀请码加入班级]
+    JC --> VW[查看个人成绩/GPA]
     CR --> EN[核心计算引擎]
     VW --> EN
-    EN --> WASM[C++ WebAssembly]
-    EN --> JS[JavaScript 降级]</div></div>
+    EN --> WASM[C++ WASM]
+    EN --> JS[JS降级]</div></div>
 	      </div>
     </div>
   </div>
@@ -1092,10 +1093,38 @@ function doClear(){engine.clear();autoSave();showToast('已清空','info');showE
 // 学生端
 // ============================================================
 function showStudentDashboard(){
+  // 检查是否已加入班级
+  var joinedClass=localStorage.getItem('_sg_stu_class_'+(currentUser||''));
+  if(!joinedClass){
+    $('stuIdDisplay').textContent='未加入';
+    var h='<div class="card"><h3>🔗 加入班级</h3><p style="color:var(--text2);margin-bottom:8px;">请输入教师提供的邀请码</p>';
+    h+='<div style="display:flex;gap:8px;"><input type="text" id="inviteInput" placeholder="6位邀请码" maxlength="6" style="flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:10px;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.1em;text-align:center;background:var(--surface2);color:var(--text);"><button class="btn btn-pri" onclick="joinClassByCode()">加入</button></div>';
+    h+='<p style="font-size:0.74rem;color:var(--text3);margin-top:6px;">加入班级后可查看你的成绩和排名</p><div id="joinMsg"></div></div>';
+    $('studentContent').innerHTML=h;
+    setTimeout(function(){var el=$('inviteInput');if(el)el.focus();},200);
+    return;
+  }
   if(!userStudentId){$('studentContent').innerHTML='<div class="card"><p style="text-align:center;color:var(--text3);">未绑定学号 ~</p></div>';return;}
   $('stuIdDisplay').textContent=userStudentId;
   var s=engine.findByNum(userStudentId);if(!s){$('studentContent').innerHTML='<div class="card"><p style="text-align:center;color:var(--text3);">暂无你的成绩数据 ~</p></div>';return;}
   $('studentContent').innerHTML=studentCard(s,true);
+}
+function joinClassByCode(){
+  var code=$('inviteInput').value.trim().toUpperCase();if(!code){$('joinMsg').innerHTML='<span style=\"color:#e85d75;\">请输入邀请码</span>';return;}
+  var allClasses=[];
+  // 搜索所有教师的班级
+  for(var i=0;i<localStorage.length;i++){
+    var key=localStorage.key(i);
+    if(key.indexOf('_sg_classes_')===0){
+      try{var cl=JSON.parse(localStorage.getItem(key));if(Array.isArray(cl))allClasses=allClasses.concat(cl);}catch(e){}
+    }
+  }
+  var found=null;
+  for(var j=0;j<allClasses.length;j++){if(allClasses[j].inviteCode===code){found=allClasses[j];break;}}
+  if(!found){$('joinMsg').innerHTML='<span style=\"color:#e85d75;\">邀请码无效，请检查后重试</span>';return;}
+  localStorage.setItem('_sg_stu_class_'+(currentUser||''),found.id);
+  $('joinMsg').innerHTML='<span style=\"color:#52c41a;\">成功加入班级：'+found.name+'！正在刷新...</span>';
+  setTimeout(function(){showStudentDashboard();},800);
 }
 
 // CSV批量导入
@@ -1174,7 +1203,7 @@ function genInviteCode(){
 function showClassManage(){
   var classes=getClasses(),cid=getCurrentClassId();
   var h='<div class="card"><h3>🏫 班级管理</h3>';
-  h+='<div style="display:flex;gap:6px;margin-bottom:14px;"><input type="text" id="newClassName" placeholder="班级名称，如:2024级计算机1班" style="flex:1;padding:8px 12px;border:1.5px solid var(--border2);border-radius:10px;font-size:0.85rem;background:var(--surface2);color:var(--text);"><button class="btn btn-pri" onclick="createClass()">+ 创建</button></div>';
+  h+='<div style="display:flex;gap:6px;margin-bottom:6px;"><input type="text" id="newClassName" placeholder="班级名称，如:2024级计算机1班" style="flex:1;padding:8px 12px;border:1.5px solid var(--border2);border-radius:10px;font-size:0.85rem;background:var(--surface2);color:var(--text);"><input type="text" id="newInviteCode" placeholder="邀请码(留空自动生成)" maxlength="8" style="width:160px;padding:8px 12px;border:1.5px solid var(--border2);border-radius:10px;font-size:0.85rem;background:var(--surface2);color:var(--text);text-transform:uppercase;letter-spacing:0.05em;"><button class="btn btn-pri" onclick="createClass()">+ 创建</button></div>';
   if(classes.length===0){h+='<p style="color:var(--text3);">还没有班级，创建一个吧</p>';}
   else{
     for(var i=0;i<classes.length;i++){
@@ -1191,9 +1220,12 @@ function showClassManage(){
 }
 function createClass(){
   var name=$('newClassName').value.trim();if(!name){showToast('请输入班级名称','err');return;}
+  var code=$('newInviteCode').value.trim().toUpperCase()||genInviteCode();
   var classes=getClasses();
-  classes.push({id:Date.now().toString(36),name:name,inviteCode:genInviteCode(),students:[],m:0,createdAt:Date.now()});
-  saveClasses(classes);showClassManage();showToast('班级创建成功，邀请码已生成','ok');
+  // 检查邀请码是否重复
+  for(var i=0;i<classes.length;i++){if(classes[i].inviteCode===code){showToast('邀请码已被使用，请换一个','err');return;}}
+  classes.push({id:Date.now().toString(36),name:name,inviteCode:code,students:[],m:0,createdAt:Date.now()});
+  saveClasses(classes);showClassManage();showToast('班级创建成功，邀请码: '+code,'ok');
 }
 function switchClass(id){
   setCurrentClassId(id);saveCurToClass();
