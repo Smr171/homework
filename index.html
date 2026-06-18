@@ -539,17 +539,28 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
 <span class="kw">struct</span> <span class="tp">Student</span> { <span class="tp">long long</span> num; <span class="tp">string</span> name; <span class="tp">vector</span>&lt;<span class="tp">double</span>&gt; score; <span class="tp">double</span> sum, aver; <span class="tp">string</span> comment; };
 <span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_STUDENTS</span> = <span class="st">100</span>; <span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_COURSES</span> = <span class="st">7</span>;</div></div>
 	        <div class="feat" style="grid-column:1/-1;"><div class="fi">📐</div><h3>系统架构图</h3><div class="mermaid" style="background:#fff;border-radius:10px;padding:8px;">graph TD
-    A[浏览器] -- 教师端 --> B[JS引擎]
-    A -- 学生端 --> B
-    B -- 核心算法 --> C[C++ WASM]
-    B -- 数据存储 --> D[Firestore]
-    B -- 用户认证 --> E[Firebase Auth]</div></div>
+    U[用户浏览器] --> L[登录/注册]
+    L -->|教师| TA[教师端界面]
+    L -->|学生| SA[学生端界面]
+    TA --> CL[班级管理]
+    CL --> CR[成绩录入/编辑/统计]
+    SA --> VW[个人成绩查看]
+    CR --> EN[核心计算引擎]
+    VW --> EN
+    EN --> WASM[C++ WebAssembly]
+    EN --> JS[JavaScript 降级]
+    CL --> DB[(Firestore 云端)]
+    CR --> DB
+    VW --> DB
+    DB --> LCL[localStorage 本地]</div></div>
 	        <div class="feat" style="grid-column:1/-1;"><div class="fi">🗄</div><h3>数据ER图</h3><div class="mermaid" style="background:#fff;border-radius:10px;padding:8px;">erDiagram
-    Teacher ||--o{ Student : manages
-    Student ||--|| Score : has
-    Teacher { string name }
+    Teacher ||--o{ Class : creates
+    Class ||--o{ Student : contains
+    Student ||--|| Grade : has
+    Teacher { string username, string password }
+    Class { string id, string name, string inviteCode }
     Student { long num, string name }
-    Score { double values, double GPA }</div></div>
+    Grade { double scores[], double sum, double aver, float gpa, string comment }</div></div>
 	      </div>
     </div>
   </div>
