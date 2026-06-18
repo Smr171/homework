@@ -504,6 +504,8 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
           <div class="sec-label">🔍 查询</div>
           <button data-act="searchNum"><span class="s-icon">🎯</span>按学号查询</button>
           <button data-act="searchName"><span class="s-icon">🔎</span>按姓名查询</button>
+          <div class="sec-label">🏫 班级管理</div>
+          <button data-act="classManage"><span class="s-icon">📋</span>管理班级</button>
           <div class="sec-label">📥 数据导入</div>
           <button data-act="csvImport"><span class="s-icon">📤</span>批量导入CSV</button>
           <div class="sec-label">🛡 审核管理</div>
@@ -731,7 +733,7 @@ function loginUser(user,acct){
   var badge=document.getElementById('roleBadge');
   if(currentRole==='teacher'){
     document.getElementById('teacherUI').style.display='flex';document.getElementById('studentUI').style.display='none';document.getElementById('statusBar').style.display='flex';
-    badge.textContent='🧑‍🏫 教师';badge.className='role-badge teacher';updateStats();if(engine.count()>0)showAll();
+    badge.textContent='🧑‍🏫 教师';badge.className='role-badge teacher';loadCurFromClass();updateStats();if(engine.count()>0)showAll();
   }else{
     document.getElementById('teacherUI').style.display='none';document.getElementById('studentUI').style.display='flex';document.getElementById('statusBar').style.display='none';
     badge.textContent='🎒 学生';badge.className='role-badge student';showStudentDashboard();
@@ -1128,9 +1130,88 @@ function deleteUser(uname){
 }
 
 // ============================================================
+// 班级管理
+// ============================================================
+function getClasses(){
+  try{return JSON.parse(localStorage.getItem('_sg_classes_'+(currentUser||''))||'[]');}catch(e){return[];}
+}
+function saveClasses(cl){
+  localStorage.setItem('_sg_classes_'+(currentUser||''),JSON.stringify(cl));
+}
+function getCurrentClassId(){
+  return localStorage.getItem('_sg_classId_'+(currentUser||''))||'';
+}
+function setCurrentClassId(id){
+  localStorage.setItem('_sg_classId_'+(currentUser||''),id);
+}
+function genInviteCode(){
+  var ch='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',c='';
+  for(var i=0;i<6;i++)c+=ch[Math.floor(Math.random()*ch.length)];
+  return c;
+}
+function showClassManage(){
+  var classes=getClasses(),cid=getCurrentClassId();
+  var h='<div class="card"><h3>🏫 班级管理</h3>';
+  h+='<div style="display:flex;gap:6px;margin-bottom:14px;"><input type="text" id="newClassName" placeholder="班级名称，如:2024级计算机1班" style="flex:1;padding:8px 12px;border:1.5px solid var(--border2);border-radius:10px;font-size:0.85rem;background:var(--surface2);color:var(--text);"><button class="btn btn-pri" onclick="createClass()">+ 创建</button></div>';
+  if(classes.length===0){h+='<p style="color:var(--text3);">还没有班级，创建一个吧</p>';}
+  else{
+    for(var i=0;i<classes.length;i++){
+      var cl=classes[i],active=(cl.id===cid);
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:'+(active?'var(--hover)':'var(--surface2)')+';border-radius:10px;border:1px solid '+(active?'#3b82f6':'var(--border)')+';margin-bottom:6px;">';
+      h+='<div><strong style="color:'+(active?'#3b82f6':'var(--text)')+';">'+cl.name+'</strong><br><span style="font-size:0.72rem;color:var(--text3);">邀请码: <code style="background:var(--bg);padding:1px 6px;border-radius:3px;">'+cl.inviteCode+'</code> | '+(cl.students?cl.students.length:0)+'人</span></div>';
+      h+='<div style="display:flex;gap:4px;">';
+      if(!active)h+='<button class="btn btn-sm btn-ok" onclick="switchClass(\x27'+cl.id+'\x27)">进入</button>';
+      else h+='<span style="font-size:0.74rem;color:#3b82f6;font-weight:600;">当前</span>';
+      h+='<button class="btn btn-sm btn-sm-del" onclick="deleteClass(\x27'+cl.id+'\x27)">删</button></div></div>';
+    }
+  }
+  h+='</div>';$('contentArea').innerHTML=h;
+}
+function createClass(){
+  var name=$('newClassName').value.trim();if(!name){showToast('请输入班级名称','err');return;}
+  var classes=getClasses();
+  classes.push({id:Date.now().toString(36),name:name,inviteCode:genInviteCode(),students:[],m:0,createdAt:Date.now()});
+  saveClasses(classes);showClassManage();showToast('班级创建成功，邀请码已生成','ok');
+}
+function switchClass(id){
+  setCurrentClassId(id);saveCurToClass();
+  var classes=getClasses();
+  for(var i=0;i<classes.length;i++){if(classes[i].id===id){engine.fromJSON({students:classes[i].students||[],m:classes[i].m||0});break;}}
+  updateStats();showAll();showToast('已切换到该班级','ok');
+}
+function deleteClass(id){
+  if(!confirm('确定删除该班级及所有成绩数据？'))return;
+  var classes=getClasses().filter(function(c){return c.id!==id;});
+  saveClasses(classes);
+  if(getCurrentClassId()===id){setCurrentClassId(classes.length>0?classes[0].id:'');engine.clear();}
+  showClassManage();showToast('班级已删除','info');
+}
+// 保存当前引擎数据到当前班级
+function saveCurToClass(){
+  if(!currentUser||currentRole!=='teacher')return;
+  var cid=getCurrentClassId();if(!cid)return;
+  var classes=getClasses();
+  for(var i=0;i<classes.length;i++){
+    if(classes[i].id===cid){classes[i].students=engine.toJSON().students;classes[i].m=engine.courseN();break;}
+  }
+  saveClasses(classes);
+}
+// 从当前班级加载数据
+function loadCurFromClass(){
+  if(!currentUser||currentRole!=='teacher')return;
+  var cid=getCurrentClassId(),classes=getClasses();
+  if(!cid&&classes.length>0){cid=classes[0].id;setCurrentClassId(cid);}
+  if(cid){for(var i=0;i<classes.length;i++){if(classes[i].id===cid){engine.fromJSON({students:classes[i].students||[],m:classes[i].m||0});break;}}}
+}
+
+// 重写 autoSave 保存到班级
+var _autoSaveOri=autoSave;
+autoSave=function(){saveCurToClass();_autoSaveOri();};
+
+// ============================================================
 // 侧边栏
 // ============================================================
-var actions={input:showInputForm,display:showAll,export:exportCSV,backup:showBackupRestore,csvImport:showCSVImport,clear:showClearConfirm,courseStats:showCourseStats,studentStats:showStudentStats,distribution:showDistribution,charts:showCharts,trend:showTrend,sortDesc:function(){doSort('desc');},sortAsc:function(){doSort('asc');},sortNum:function(){doSort('num');},sortName:function(){doSort('name');},searchNum:showSearchNum,searchName:showSearchName,approval:showApproval,userManage:showUserManage};
+var actions={input:showInputForm,display:showAll,export:exportCSV,backup:showBackupRestore,csvImport:showCSVImport,classManage:showClassManage,clear:showClearConfirm,courseStats:showCourseStats,studentStats:showStudentStats,distribution:showDistribution,charts:showCharts,trend:showTrend,sortDesc:function(){doSort('desc');},sortAsc:function(){doSort('asc');},sortNum:function(){doSort('num');},sortName:function(){doSort('name');},searchNum:showSearchNum,searchName:showSearchName,approval:showApproval,userManage:showUserManage};
 $('sidebar').addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;var btns=$('sidebar').querySelectorAll('button');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');b.classList.add('active');try{actions[b.dataset.act]();}catch(err){showToast('出错啦: '+err.message,'err');}});
 
 // Tab
