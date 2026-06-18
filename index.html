@@ -744,7 +744,7 @@ function createEngine(){
       if(idx<0||idx>=students.length)return-1;var s=students[idx];s.num=num;s.name=name;s.scores=scores.slice();calcOne(s);saveHistory();return 0;
     },
     setComment:function(idx,comment){if(idx<0||idx>=students.length)return-1;students[idx].comment=comment||'';return 0;},
-    all:function(){calcAll();var r=mkRank();return students.map(function(s){var rk=-1;for(var i=0;i<r.length;i++)if(r[i].num===s.num){rk=i+1;break;}return{num:s.num,name:s.name,scores:s.scores.slice(),sum:+s.sum.toFixed(2),aver:+s.aver.toFixed(2),rank:rk,comment:s.comment||''};});},
+    all:function(){calcAll();var r=mkRank();return students.map(function(s){var rk=-1;for(var i=0;i<r.length;i++)if(r[i].num===s.num){rk=i+1;break;}return{num:s.num,name:s.name,scores:s.scores.slice(),sum:+s.sum.toFixed(2),aver:+s.aver.toFixed(2),rank:rk,gpa:calcGPA(s.scores,courseCredits),comment:s.comment||''};});},
     sortDesc:function(){calcAll();students.sort(function(a,b){if(a.sum!==b.sum)return b.sum-a.sum;return a.num-b.num;});},
     sortAsc:function(){calcAll();students.sort(function(a,b){if(a.sum!==b.sum)return a.sum-b.sum;return a.num-b.num;});},
     sortNum:function(){students.sort(function(a,b){return a.num-b.num;});},
@@ -761,9 +761,14 @@ function createEngine(){
   };
 }
 var engine=createEngine();
+// GPA 绩点映射
+function scoreToGP(s){if(s>=90)return 4.0;if(s>=85)return 3.7;if(s>=82)return 3.3;if(s>=78)return 3.0;if(s>=75)return 2.7;if(s>=72)return 2.3;if(s>=68)return 2.0;if(s>=64)return 1.5;if(s>=60)return 1.0;return 0;}
+function calcGPA(scores,credits){var tp=0,tc=0;for(var i=0;i<scores.length;i++){tp+=scoreToGP(scores[i])*credits[i];tc+=credits[i];}return tc>0?+(tp/tc).toFixed(2):0;}
+
 var MAX_COURSES=7;
 // 课程名称
 var courseNames=["高数","线性代数","Python","概率论与数理统计","大学英语","体育","大学物理"];
+var courseCredits=[5,4,4,4,3,2,2]; // 学分
 
 
 // 历史快照
@@ -788,6 +793,7 @@ function $(id){return document.getElementById(id);}
 function showToast(msg,type){type=type||'info';var b=$('toastBox'),e=document.createElement('div');e.className='toast toast-'+(type==='ok'?'ok':type==='err'?'err':'info');e.textContent=msg;b.appendChild(e);setTimeout(function(){e.remove();},2400);}
 function updateStats(){$('statN').textContent=engine.count();$('statM').textContent=engine.courseN();}
 function scColor(v){if(v>=90)return'sc-great';if(v>=80)return'sc-good';if(v>=60)return'sc-ok';return'sc-bad';}
+function hasFail(scores){for(var i=0;i<scores.length;i++)if(scores[i]<60)return true;return false;}
 function rkCls(r){if(r===1)return'rk-1';if(r===2)return'rk-2';if(r===3)return'rk-3';return'';}
 
 function openModal(title,bodyHtml,onSave){
@@ -822,7 +828,7 @@ function showInputForm(){
   h+='<p style="font-size:0.8rem;color:var(--text2);margin:4px 0;">选择要录入的课程（最多'+MAX_COURSES+'门）：</p>';
   h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;" id="courseChecks">';
   for(var i=0;i<courseNames.length;i++){
-    h+='<label style="display:flex;align-items:center;gap:3px;font-size:0.82rem;cursor:pointer;background:var(--surface2);padding:5px 10px;border-radius:14px;border:1px solid var(--border);"><input type="checkbox" value="'+i+'" id="cc'+i+'" '+(i<3?'checked':'')+' style="accent-color:#3b82f6;">'+courseNames[i]+'</label>';
+    h+='<label style="display:flex;align-items:center;gap:3px;font-size:0.82rem;cursor:pointer;background:var(--surface2);padding:5px 10px;border-radius:14px;border:1px solid var(--border);"><input type="checkbox" value="'+i+'" id="cc'+i+'" '+(i<3?'checked':'')+' style="accent-color:#3b82f6;">'+courseNames[i]+' ('+courseCredits[i]+'学分)</label>';
   }
   h+='</div><p style="font-size:0.74rem;color:var(--text3);" id="ccMsg"></p>';
   h+='<button class="btn btn-pri" onclick="startInput()">✨ 开始录入</button> <button class="btn btn-out" onclick="loadDemo()">🎲 加载演示</button>';
@@ -869,14 +875,14 @@ function showAll(){
   var all=engine.all();if(all.length===0){showEmpty();return;}
   var mm=engine.courseN();
   var cols=['操作','排名','学号','姓名'];
-  for(var j=0;j<mm;j++)cols.push(courseNames[j]);cols.push('总分','平均分','评语');
+  for(var j=0;j<mm;j++)cols.push(courseNames[j]);cols.push('总分','平均分','GPA','评语');
   var rows=all.map(function(s,i){
     var row=[
       '<button class="btn-sm btn-sm-edit" onclick="editStudent('+i+')">e</button> <button class="btn-sm btn-sm-del" onclick="delStudent('+i+')">x</button>',
       s.rank>0?'<span class="rk '+rkCls(s.rank)+'">'+s.rank+'</span>':'-',s.num,s.name
     ];
     for(var j=0;j<mm;j++)row.push('<span class="'+scColor(s.scores[j])+'">'+s.scores[j].toFixed(1)+'</span>');
-    row.push('<strong>'+s.sum.toFixed(2)+'</strong>',s.aver.toFixed(2));
+    row.push('<strong>'+s.sum.toFixed(2)+'</strong>',s.aver.toFixed(2),'<strong style="color:#3b82f6;">'+s.gpa.toFixed(2)+'</strong>');
     row.push('<button class="btn-sm btn-sm-comment" onclick="editComment('+i+',\x27'+(s.comment||'').replace(/\\/g,'\\\\').replace(/'/g,"\\x27")+'\x27)">'+(s.comment?'c':'+')+'</button>');
     return row;
   });
@@ -921,8 +927,8 @@ function editComment(i,old){
 function exportCSV(){
   var all=engine.all(),mm=engine.courseN();if(all.length===0){showToast('暂无数据可导出 ~','info');return;}
   var csv='﻿';csv+='排名,学号,姓名';
-  for(var j=0;j<mm;j++)csv+=','+courseNames[j];csv+=',总分,平均分,评语\n';
-  for(var i=0;i<all.length;i++){var s=all[i];csv+=(s.rank||'')+','+s.num+','+s.name;for(var j=0;j<mm;j++)csv+=','+s.scores[j].toFixed(1);csv+=','+s.sum.toFixed(2)+','+s.aver.toFixed(2)+',"'+(s.comment||'').replace(/"/g,'""')+'"\n';}
+  for(var j=0;j<mm;j++)csv+=','+courseNames[j];csv+=',总分,平均分,GPA,评语\n';
+  for(var i=0;i<all.length;i++){var s=all[i];csv+=(s.rank||'')+','+s.num+','+s.name;for(var j=0;j<mm;j++)csv+=','+s.scores[j].toFixed(1);csv+=','+s.sum.toFixed(2)+','+s.aver.toFixed(2)+','+(calcGPA(s.scores,courseCredits)).toFixed(2)+',"'+(s.comment||'').replace(/"/g,'""')+'"\n';}
   var blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob);
   var a=document.createElement('a');a.href=url;a.download='成绩表_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
   URL.revokeObjectURL(url);showToast('📥 导出成功！','ok');
@@ -1008,7 +1014,7 @@ function rejectStudent(user){
 
 // 其他
 function showCourseStats(){var s=engine.courseStats();if(s.length===0){showToast('暂无数据 ~','info');return;}renderTable('📐 各课程总分与平均分',['科目','总分','平均分'],s.map(function(x){return[courseNames[x.idx-1],x.total.toFixed(2),x.avg.toFixed(2)];}));}
-function showStudentStats(){var s=engine.studentStats();if(s.length===0){showToast('暂无数据 ~','info');return;}renderTable('👤 每位学生统计',['学号','姓名','总分','平均分'],s.map(function(x){return[x.num,x.name,x.total.toFixed(2),x.avg.toFixed(2)];}));}
+function showStudentStats(){var s=engine.studentStats();if(s.length===0){showToast('暂无数据 ~','info');return;}renderTable('👤 每位学生统计',['学号','姓名','总分','平均分','GPA'],s.map(function(x){return[x.num,x.name,x.total.toFixed(2),x.avg.toFixed(2),x.gpa.toFixed(2)];}));}
 function showDistribution(){
   var mm=engine.courseN();if(mm===0){showToast('暂无数据 ~','info');return;}
   var cs=['bf-c0','bf-c1','bf-c2','bf-c3','bf-c4','bf-c5'],h='';
