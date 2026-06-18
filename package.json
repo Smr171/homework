@@ -1,0 +1,14 @@
+{
+  "name": "student-grade-manager",
+  "version": "2.0.0",
+  "description": "学生成绩管理系统 - 基于C++ WebAssembly的云端成绩管理平台",
+  "scripts": {
+    "test": "jest --passWithNoTests"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  }
+}
