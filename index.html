@@ -28,6 +28,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
 <!-- ECharts -->
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 
 <style>
 /* ============================================================
@@ -529,8 +530,20 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
 	        <div class="feat"><div class="fi">⚡</div><h3>C++ WebAssembly</h3><p>核心算法编译为WebAssembly运行，JS界面层，内置降级方案。</p></div>
         <div class="feat" style="grid-column:1/-1;"><div class="fi">🏗</div><h3>核心数据结构</h3><div class="code-block"><span class="cm">// 系统核心数据模型</span>
 <span class="kw">struct</span> <span class="tp">Student</span> { <span class="tp">long long</span> num; <span class="tp">string</span> name; <span class="tp">vector</span>&lt;<span class="tp">double</span>&gt; score; <span class="tp">double</span> sum, aver; <span class="tp">string</span> comment; };
-<span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_STUDENTS</span> = <span class="st">30</span>; <span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_COURSES</span> = <span class="st">6</span>;</div></div>
-      </div>
+<span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_STUDENTS</span> = <span class="st">100</span>; <span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_COURSES</span> = <span class="st">7</span>;</div></div>
+	        <div class="feat" style="grid-column:1/-1;"><div class="fi">📐</div><h3>系统架构图</h3><div class="mermaid" style="background:#fff;border-radius:10px;padding:8px;">graph TD
+    A[浏览器] -- 教师端 --> B[JS引擎]
+    A -- 学生端 --> B
+    B -- 核心算法 --> C[C++ WASM]
+    B -- 数据存储 --> D[Firestore]
+    B -- 用户认证 --> E[Firebase Auth]</div></div>
+	        <div class="feat" style="grid-column:1/-1;"><div class="fi">🗄</div><h3>数据ER图</h3><div class="mermaid" style="background:#fff;border-radius:10px;padding:8px;">erDiagram
+    Teacher ||--o{ Student : manages
+    Student ||--|| Score : has
+    Teacher { string name }
+    Student { long num, string name }
+    Score { double values, double GPA }</div></div>
+	      </div>
     </div>
   </div>
   <div class="statusbar" id="statusBar"><span>📊 记录: <span class="sv" id="statN">0</span> 人</span><span>📚 课程: <span class="sv" id="statM">0</span></span><span style="margin-left:auto;">⚙ <span class="sv" id="statEng">JavaScript</span></span></div>
@@ -1121,7 +1134,7 @@ var actions={input:showInputForm,display:showAll,export:exportCSV,backup:showBac
 $('sidebar').addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;var btns=$('sidebar').querySelectorAll('button');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');b.classList.add('active');try{actions[b.dataset.act]();}catch(err){showToast('出错啦: '+err.message,'err');}});
 
 // Tab
-$('tabNav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;var n=b.dataset.tab,bs=$('tabNav').querySelectorAll('button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');b.classList.add('on');var ps=document.querySelectorAll('.tab-pane');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');$('pane-'+n).classList.add('show');if(n==='source')renderSource();});
+$('tabNav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;var n=b.dataset.tab,bs=$('tabNav').querySelectorAll('button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');b.classList.add('on');var ps=document.querySelectorAll('.tab-pane');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');$('pane-'+n).classList.add('show');if(n==='source')renderSource();if(n==='about'){setTimeout(function(){try{mermaid.run();}catch(e){}},300);}});
 
 // 移动端菜单
 function toggleMobileMenu(){
