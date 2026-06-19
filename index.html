@@ -221,8 +221,8 @@ body {
 /* ============================================================
    表格
    ============================================================ */
-.tbl-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; display: block; }
-.tbl-wrap table { width: max-content; min-width: 100%; white-space: nowrap; }
+.tbl-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; display: block; touch-action: pan-x; overscroll-behavior-x: contain; }
+.tbl-wrap > table { width: max-content !important; min-width: 720px !important; white-space: nowrap; table-layout: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
 thead th {
   background: linear-gradient(180deg, #eff6ff, #dbeafe); color: #1e40af; font-weight: 700;
@@ -852,21 +852,26 @@ function enableTableSwipe(){
     (function(wrap){
       if(wrap.dataset.swipeBound==='1') return;
       wrap.dataset.swipeBound='1';
-      var startX=0,startY=0,startLeft=0,dragging=false;
-      wrap.addEventListener('touchstart',function(e){
-        if(!e.touches||!e.touches[0]) return;
-        startX=e.touches[0].clientX; startY=e.touches[0].clientY; startLeft=wrap.scrollLeft; dragging=false;
-      },{passive:true});
-      wrap.addEventListener('touchmove',function(e){
-        if(!e.touches||!e.touches[0]) return;
-        var dx=e.touches[0].clientX-startX; var dy=e.touches[0].clientY-startY;
-        if(Math.abs(dx)>Math.abs(dy)){
-          dragging=true;
+      var startX=0,startY=0,startLeft=0;
+      var onStart=function(e){
+        var t=e.touches&&e.touches[0]; if(!t) return;
+        startX=t.clientX; startY=t.clientY; startLeft=wrap.scrollLeft;
+      };
+      var onMove=function(e){
+        var t=e.touches&&e.touches[0]; if(!t) return;
+        var dx=t.clientX-startX, dy=t.clientY-startY;
+        if(Math.abs(dx)>Math.abs(dy) && wrap.scrollWidth>wrap.clientWidth){
           wrap.scrollLeft=startLeft-dx;
           e.preventDefault();
         }
-      },{passive:false});
-      wrap.addEventListener('touchend',function(){dragging=false;},{passive:true});
+      };
+      wrap.addEventListener('touchstart',onStart,{passive:true});
+      wrap.addEventListener('touchmove',onMove,{passive:false});
+      var table=wrap.querySelector('table');
+      if(table){
+        table.addEventListener('touchstart',onStart,{passive:true});
+        table.addEventListener('touchmove',onMove,{passive:false});
+      }
     })(wraps[i]);
   }
 }
