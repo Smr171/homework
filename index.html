@@ -221,8 +221,8 @@ body {
 /* ============================================================
    表格
    ============================================================ */
-.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; -ms-overflow-style: -ms-autohiding-scrollbar; touch-action: pan-x; }
-.tbl-wrap table { min-width: 700px; white-space: nowrap; table-layout: auto; }
+.tbl-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; display: block; }
+.tbl-wrap table { width: max-content; min-width: 100%; white-space: nowrap; }
 table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
 thead th {
   background: linear-gradient(180deg, #eff6ff, #dbeafe); color: #1e40af; font-weight: 700;
