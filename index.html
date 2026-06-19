@@ -1420,11 +1420,14 @@ document.addEventListener('DOMContentLoaded',function(){
     if(session&&session.user){
       var accounts=getAccounts();
       if(accounts[session.user]&&accounts[session.user].status==='approved'){
-        currentUser=session.user;currentRole=session.role;userStudentId=session.stuId;
-        loadUserData();
-          document.getElementById('authOverlay').classList.add('hidden');
-          document.getElementById('appWrap').classList.add('active');
-          document.getElementById('curUser').textContent=session.user;
+        // 显示自动登录中提示
+        document.getElementById('authOverlay').classList.add('hidden');
+        document.getElementById('appWrap').classList.add('active');
+        document.getElementById('curUser').textContent=session.user;
+        document.getElementById('contentArea').innerHTML='<div class="empty-msg"><div class="em-icon">⏳</div><p style="font-size:1rem;color:var(--text);">正在自动登录...</p><p style="font-size:0.8rem;color:var(--text2);">欢迎回来，'+session.user+'</p></div>';
+        setTimeout(function(){
+          currentUser=session.user;currentRole=session.role;userStudentId=session.stuId;
+          loadUserData();
           var badge=document.getElementById('roleBadge');
           if(session.role==='teacher'){
             document.getElementById('teacherUI').style.display='flex';
@@ -1440,6 +1443,8 @@ document.addEventListener('DOMContentLoaded',function(){
             showStudentDashboard();
           }
           updateWatermark();
+          showToast('✅ 自动登录成功 — '+session.user,'ok');
+        },600);
         return;
       }
     }
