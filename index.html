@@ -222,7 +222,7 @@ body {
    表格
    ============================================================ */
 .tbl-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; display: block; touch-action: pan-x; overscroll-behavior-x: contain; }
-.tbl-wrap > table { width: max-content !important; min-width: 720px !important; white-space: nowrap; table-layout: auto; }
+.tbl-wrap > table { width: 100%; min-width: 720px; white-space: nowrap; table-layout: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
 thead th {
   background: linear-gradient(180deg, #eff6ff, #dbeafe); color: #1e40af; font-weight: 700;
@@ -448,7 +448,7 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
   .statusbar { height: 22px; padding: 0 6px; font-size: 0.6rem; gap: 8px; }
   .statusbar .sv { font-size: 0.68rem; }
   .tbl-wrap { overflow-x: visible !important; }
-  .tbl-wrap > table { width: max-content !important; min-width: var(--mobile-wide, 100vw) !important; font-size: 0.7rem; }
+  .tbl-wrap > table { width: max-content !important; min-width: 620px !important; font-size: 0.7rem; }
   thead th { padding: 5px 4px; font-size: 0.62rem; }
   tbody td { padding: 4px 4px; font-size: 0.66rem; }
   .btn-sm { padding: 2px 5px; font-size: 0.62rem; }
