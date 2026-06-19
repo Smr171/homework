@@ -1266,7 +1266,7 @@ autoSave=function(){saveCurToClass();_autoSaveOri();};
 // 侧边栏
 // ============================================================
 var actions={input:showInputForm,display:showAll,export:exportCSV,backup:showBackupRestore,csvImport:showCSVImport,classManage:showClassManage,clear:showClearConfirm,courseStats:showCourseStats,studentStats:showStudentStats,distribution:showDistribution,charts:showCharts,trend:showTrend,sortDesc:function(){doSort('desc');},sortAsc:function(){doSort('asc');},sortNum:function(){doSort('num');},sortName:function(){doSort('name');},searchNum:showSearchNum,searchName:showSearchName,approval:showApproval,userManage:showUserManage};
-$('sidebar').addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;var btns=$('sidebar').querySelectorAll('button');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');b.classList.add('active');try{actions[b.dataset.act]();}catch(err){showToast('出错啦: '+err.message,'err');}});
+$('sidebar').addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;var btns=$('sidebar').querySelectorAll('button');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');b.classList.add('active');try{actions[b.dataset.act]();$('contentArea').scrollTop=0;}catch(err){showToast('出错啦: '+err.message,'err');}});
 
 // Tab
 $('tabNav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;var n=b.dataset.tab,bs=$('tabNav').querySelectorAll('button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');b.classList.add('on');var ps=document.querySelectorAll('.tab-pane');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');$('pane-'+n).classList.add('show');if(n==='source')renderSource();if(n==='about'){setTimeout(function(){try{mermaid.init(undefined,$('pane-about').querySelectorAll('.mermaid'));}catch(e){}},500);}});
@@ -1281,7 +1281,7 @@ function toggleMobileMenu(){
   m.querySelector('.mm-sidebar').appendChild(sb);
   m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('show');});
   document.body.appendChild(m);
-  sb.addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;try{actions[b.dataset.act]();m.classList.remove('show');}catch(err){showToast('出错啦: '+err.message,'err');}});
+  sb.addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;try{actions[b.dataset.act]();$('contentArea').scrollTop=0;m.classList.remove('show');}catch(err){showToast('出错啦: '+err.message,'err');}});
 }
 
 // ============================================================
