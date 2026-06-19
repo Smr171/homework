@@ -422,14 +422,11 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
   .fgrid { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
-  body { overflow-x: auto; }
-  .app-wrap,
-  .topbar,
-  .main-area,
-  .statusbar {
-    min-width: var(--mobile-wide, 100vw);
-    width: var(--mobile-wide, 100vw);
-  }
+  body { overflow-x: auto; overflow-y: auto; min-width: var(--mobile-wide, 100vw); }
+  .app-wrap { min-width: var(--mobile-wide, 100vw); width: max-content; }
+  .topbar { position: relative; min-width: var(--mobile-wide, 100vw); width: var(--mobile-wide, 100vw); }
+  .main-area { min-width: var(--mobile-wide, 100vw); width: var(--mobile-wide, 100vw); }
+  .statusbar { min-width: var(--mobile-wide, 100vw); width: var(--mobile-wide, 100vw); }
   .sidebar { display: none; }
   .tab-nav button { padding: 4px 6px; font-size: 0.64rem; }
   .topbar { height: 44px; padding: 0 8px; }
