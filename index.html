@@ -803,10 +803,10 @@ var engine=createEngine();
 function scoreToGP(s){if(s>=90)return 4.0;if(s>=85)return 3.7;if(s>=82)return 3.3;if(s>=78)return 3.0;if(s>=75)return 2.7;if(s>=72)return 2.3;if(s>=68)return 2.0;if(s>=64)return 1.5;if(s>=60)return 1.0;return 0;}
 function calcGPA(scores,credits){var tp=0,tc=0;for(var i=0;i<scores.length;i++){tp+=scoreToGP(scores[i])*credits[i];tc+=credits[i];}return tc>0?+(tp/tc).toFixed(2):0;}
 
-var MAX_COURSES=7;
+var MAX_COURSES=9;
 // 课程名称
-var courseNames=["高数","线性代数","Python","概率论与数理统计","大学英语","体育","大学物理"];
-var courseCredits=[5,4,4,4,3,2,2]; // 学分
+var courseNames=["中国近现代史纲要","体育2","高等数学一（下）Ⅱ","概率论与数理统计","形势与政策2","通用英语2","大学数学（线性代数）","大学物理","Python编程与实践"];
+var courseCredits=[3,1,5,5,0,2,3,2,2];
 
 
 // 历史快照
