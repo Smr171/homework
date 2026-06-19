@@ -221,8 +221,8 @@ body {
 /* ============================================================
    表格
    ============================================================ */
-.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; -ms-overflow-style: -ms-autohiding-scrollbar; }
-.tbl-wrap table { min-width: 600px; white-space: nowrap; }
+.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; -ms-overflow-style: -ms-autohiding-scrollbar; touch-action: pan-x; }
+.tbl-wrap table { min-width: 700px; white-space: nowrap; table-layout: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
 thead th {
   background: linear-gradient(180deg, #eff6ff, #dbeafe); color: #1e40af; font-weight: 700;
@@ -762,10 +762,11 @@ function loginUser(user,acct){
     badge.textContent='🎒 学生';badge.className='role-badge student';
     showStudentDashboard();
   }
+  localStorage.setItem('_sg_session', JSON.stringify({user:user, role:currentRole, stuId:userStudentId}));
   showToast('欢迎回来，'+user+'！🌸','ok');
 }
 
-function doLogout(){saveUserData();currentUser=null;userStudentId=null;updateWatermark();document.getElementById('authOverlay').classList.remove('hidden');document.getElementById('appWrap').classList.remove('active');if(authMode==='register')toggleAuthMode();document.getElementById('authUser').focus();}
+function doLogout(){saveUserData();localStorage.removeItem('_sg_session');currentUser=null;userStudentId=null;updateWatermark();document.getElementById('authOverlay').classList.remove('hidden');document.getElementById('appWrap').classList.remove('active');if(authMode==='register')toggleAuthMode();document.getElementById('authUser').focus();}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&!document.getElementById('authOverlay').classList.contains('hidden'))doAuth();});
 
 // ============================================================
@@ -1337,7 +1338,39 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch
 // Mermaid 初始化
 try{mermaid.initialize({startOnLoad:false,theme:'default',securityLevel:'loose'});}catch(e){}
 // 启动
-document.addEventListener('DOMContentLoaded',function(){$('authUser').focus();});
+document.addEventListener('DOMContentLoaded',function(){
+  // 自动恢复登录状态
+  try{
+    var session=JSON.parse(localStorage.getItem('_sg_session'));
+    if(session&&session.user){
+      var accounts=getAccounts();
+      if(accounts[session.user]&&accounts[session.user].status==='approved'){
+        currentUser=session.user;currentRole=session.role;userStudentId=session.stuId;
+        loadUserData();
+          document.getElementById('authOverlay').classList.add('hidden');
+          document.getElementById('appWrap').classList.add('active');
+          document.getElementById('curUser').textContent=session.user;
+          var badge=document.getElementById('roleBadge');
+          if(session.role==='teacher'){
+            document.getElementById('teacherUI').style.display='flex';
+            document.getElementById('studentUI').style.display='none';
+            document.getElementById('statusBar').style.display='flex';
+            badge.textContent='🧑‍🏫 教师';badge.className='role-badge teacher';
+            loadCurFromClass();updateStats();if(engine.count()>0)showAll();
+          }else{
+            document.getElementById('teacherUI').style.display='none';
+            document.getElementById('studentUI').style.display='flex';
+            document.getElementById('statusBar').style.display='none';
+            badge.textContent='🎒 学生';badge.className='role-badge student';
+            showStudentDashboard();
+          }
+          updateWatermark();
+        return;
+      }
+    }
+  }catch(e){}
+  $('authUser').focus();
+});
 </script>
 </body>
 </html>
