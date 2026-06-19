@@ -429,6 +429,8 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
   .abt-grid { grid-template-columns: 1fr; }
   .modal-box { padding: 16px; }
   .hamburger { display: flex !important; }
+  .main-area { overflow: visible; }
+  .content { overflow-x: visible; }
 }
 .hamburger {
   display: none; width: 36px; height: 36px; align-items: center; justify-content: center;
@@ -844,12 +846,37 @@ function openModal(title,bodyHtml,onSave){
 function closeModal(){$('modalOverlay').classList.remove('show');}
 $('modalOverlay').addEventListener('click',function(e){if(e.target===$('modalOverlay'))closeModal();});
 
+function enableTableSwipe(){
+  var wraps=document.querySelectorAll('.tbl-wrap');
+  for(var i=0;i<wraps.length;i++){
+    (function(wrap){
+      if(wrap.dataset.swipeBound==='1') return;
+      wrap.dataset.swipeBound='1';
+      var startX=0,startY=0,startLeft=0,dragging=false;
+      wrap.addEventListener('touchstart',function(e){
+        if(!e.touches||!e.touches[0]) return;
+        startX=e.touches[0].clientX; startY=e.touches[0].clientY; startLeft=wrap.scrollLeft; dragging=false;
+      },{passive:true});
+      wrap.addEventListener('touchmove',function(e){
+        if(!e.touches||!e.touches[0]) return;
+        var dx=e.touches[0].clientX-startX; var dy=e.touches[0].clientY-startY;
+        if(Math.abs(dx)>Math.abs(dy)){
+          dragging=true;
+          wrap.scrollLeft=startLeft-dx;
+          e.preventDefault();
+        }
+      },{passive:false});
+      wrap.addEventListener('touchend',function(){dragging=false;},{passive:true});
+    })(wraps[i]);
+  }
+}
+
 function renderTable(title,cols,rows,extra){
   var h='<div class="card"><h3>'+title+'</h3>'+(extra||'')+'<div class="tbl-wrap"><table><thead><tr>';
   for(var i=0;i<cols.length;i++)h+='<th>'+cols[i]+'</th>';h+='</tr></thead><tbody>';
   if(rows.length===0)h+='<tr><td colspan="'+cols.length+'" style="color:var(--text3);padding:16px;">暂无数据 ~ (´-ω-`)</td></tr>';
   else for(var r=0;r<rows.length;r++){h+='<tr>';for(var c=0;c<rows[r].length;c++)h+='<td>'+rows[r][c]+'</td>';h+='</tr>';}
-  h+='</tbody></table></div></div>';$('contentArea').innerHTML=h;
+  h+='</tbody></table></div></div>';$('contentArea').innerHTML=h;enableTableSwipe();
 }
 
 // 学生卡片
@@ -936,7 +963,7 @@ function showAll(){
   var h='<div class="card"><h3>学生成绩总表</h3><div class="tbl-wrap"><table><thead><tr>'+colsHtml+'</tr></thead><tbody>';
   if(rows.length===0)h+='<tr><td colspan="'+(mm+10)+'" style="color:var(--text3);padding:16px;">暂无数据 ~</td></tr>';
   else for(var r=0;r<rows.length;r++){h+='<tr>';for(var c=0;c<rows[r].length;c++)h+='<td>'+rows[r][c]+'</td>';h+='</tr>';}
-  h+='</tbody></table></div></div>';$('contentArea').innerHTML=h;
+  h+='</tbody></table></div></div>';$('contentArea').innerHTML=h;enableTableSwipe();
 }
 // 切换排序：第一次降序，第二次升序，第三次取消
 function toggleSort(type,idx){
