@@ -424,12 +424,11 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
 @media (max-width: 600px) {
   body { overflow-x: auto; overflow-y: auto; min-width: var(--mobile-wide, 100vw); }
   .app-wrap { min-width: var(--mobile-wide, 100vw); }
-  .topbar { position: relative; min-width: var(--mobile-wide, 100vw); width: var(--mobile-wide, 100vw); }
   .main-area { min-width: var(--mobile-wide, 100vw); width: var(--mobile-wide, 100vw); }
   .statusbar { min-width: var(--mobile-wide, 100vw); width: var(--mobile-wide, 100vw); }
   .sidebar { display: none; }
   .tab-nav button { padding: 4px 6px; font-size: 0.64rem; }
-  .topbar { height: 44px; padding: 0 8px; }
+  .topbar { position: relative; min-width: var(--mobile-wide, 100vw); width: var(--mobile-wide, 100vw); height: 44px; padding: 0 8px; }
   .topbar h1 { font-size: 0.66rem; max-width: 86px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; gap: 3px; }
   .topbar h1 .t-icon { font-size: 1rem; }
   .topbar .right-side { gap: 4px; }
