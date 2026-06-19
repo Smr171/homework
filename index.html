@@ -2,6 +2,9 @@
 <html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.gstatic.com https://*.firebaseapp.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -872,6 +875,7 @@ function syncMobileWide(){
   var pre=document.querySelector('.src-wrap pre');
   if(pre) wide=Math.max(wide, pre.scrollWidth+32);
   var w=wide+'px';
+  document.documentElement.style.minWidth=w;
   document.body.style.minWidth=w;
   var el=document.getElementById('appWrap'); if(el){el.style.minWidth=w;el.style.width=w;}
   el=document.querySelector('.topbar'); if(el){el.style.minWidth=w;el.style.width=w;}
@@ -1357,7 +1361,7 @@ var actions={input:showInputForm,display:showAll,export:exportCSV,backup:showBac
 $('sidebar').addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;var btns=$('sidebar').querySelectorAll('button');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');b.classList.add('active');try{actions[b.dataset.act]();$('contentArea').scrollTop=0;}catch(err){showToast('出错啦: '+err.message,'err');}});
 
 // Tab
-$('tabNav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;var n=b.dataset.tab,bs=$('tabNav').querySelectorAll('button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');b.classList.add('on');var ps=document.querySelectorAll('.tab-pane');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');$('pane-'+n).classList.add('show');if(n==='about'){document.body.style.minWidth='';var el=document.getElementById('appWrap');if(el){el.style.minWidth='';el.style.width='';}el=document.querySelector('.topbar');if(el){el.style.minWidth='';el.style.width='';}el=document.getElementById('statusBar');if(el){el.style.minWidth='';el.style.width='';}el=document.querySelector('.main-area');if(el){el.style.minWidth='';el.style.width='';}}if(n==='source')renderSource();if(n==='about'){setTimeout(function(){try{mermaid.init(undefined,$('pane-about').querySelectorAll('.mermaid'));}catch(e){}},500);}});
+$('tabNav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;var n=b.dataset.tab,bs=$('tabNav').querySelectorAll('button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');b.classList.add('on');var ps=document.querySelectorAll('.tab-pane');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');$('pane-'+n).classList.add('show');if(n==='about'){document.documentElement.style.minWidth='';document.body.style.minWidth='';var el=document.getElementById('appWrap');if(el){el.style.minWidth='';el.style.width='';}el=document.querySelector('.topbar');if(el){el.style.minWidth='';el.style.width='';}el=document.getElementById('statusBar');if(el){el.style.minWidth='';el.style.width='';}el=document.querySelector('.main-area');if(el){el.style.minWidth='';el.style.width='';}}if(n==='source')renderSource();if(n==='about'){setTimeout(function(){try{mermaid.init(undefined,$('pane-about').querySelectorAll('.mermaid'));}catch(e){}},500);}});
 
 // 移动端菜单
 function toggleMobileMenu(){

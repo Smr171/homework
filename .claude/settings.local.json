@@ -3,7 +3,19 @@
     "allow": [
       "Bash(node -e ' *)",
       "Bash(node --check _temp_check.js)",
-      "Bash(rm _temp_check.js)"
+      "Bash(rm _temp_check.js)",
+      "Bash(node -e \"var fs=require\\('fs'\\),html=fs.readFileSync\\('index.html','utf8'\\);var ss=html.indexOf\\('width: 210px; min-width: 210px; background:'\\);if\\(ss>0\\){var se=html.indexOf\\('overflow-y: auto; padding: 8px 0;',ss\\);if\\(se>0\\)se=html.indexOf\\('\\\\n}',se\\)+2;var rep='width: 210px; min-width: 210px; background: rgba\\(255,255,255,0.65\\); backdrop-filter: blur\\(8px\\); -webkit-backdrop-filter: blur\\(8px\\); border-right: 1px solid rgba\\(200,210,230,0.4\\); overflow-y: auto; padding: 8px 0;';html=html.substring\\(0,ss\\)+rep+html.substring\\(se\\);console.log\\('Sidebar done'\\);}else{console.log\\('not found'\\);}fs.writeFileSync\\('index.html',html,'utf8'\\);}\")",
+      "Bash(node _fixSide.js)",
+      "Bash(rm _fixSide.js)",
+      "Bash(rm _tc.js)",
+      "Bash(node --use-system-ca -e ' *)",
+      "Bash(node -e \"var fs=require\\('fs'\\),html=fs.readFileSync\\('index.html','utf8'\\);var m=html.match\\(/<script>\\([\\\\s\\\\S]*?\\)<\\\\/script>/\\);if\\(!m\\)console.log\\('No script match'\\);else{fs.writeFileSync\\('_tc.js',m[1]\\);console.log\\('Script extracted, lines:',m[1].split\\('\\\\n'\\).length\\);}\")",
+      "Bash(git revert *)",
+      "Bash(node -e \"var fs=require\\('fs'\\),html=fs.readFileSync\\('index.html','utf8'\\);var m=html.match\\(/<script>\\([\\\\s\\\\S]*?\\)<\\\\/script>/\\);fs.writeFileSync\\('_tc.js',m[1]\\);\")",
+      "Bash(node --check _tc.js)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }
