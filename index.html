@@ -995,7 +995,7 @@ function showAll(){
   for(var j=0;j<mm;j++)th+='<th class="sortable" onclick="toggleSort(\x27course\x27,'+j+')">'+courseNames[j]+'</th>';
   th+='<th class="sortable" onclick="toggleSort(\x27sum\x27)">总分</th>';
   th+='<th class="sortable" onclick="toggleSort(\x27aver\x27)">平均分</th>';
-  var colsHtml='<th>操作</th><th>排名</th><th class="sortable" onclick="toggleSort(\x27num\x27)">学号</th><th class="sortable" onclick="toggleSort(\x27name\x27)">姓名</th>'+th+'<th>GPA</th><th>评语</th>';
+  var colsHtml='<th>操作</th><th>排名</th><th class="sortable" onclick="toggleSort(\x27num\x27)">学号</th><th class="sortable" onclick="toggleSort(\x27name\x27)">姓名</th>'+th+'<th class="sortable" onclick="toggleSort(\x27gpa\x27)">GPA</th><th>评语</th>';
   var h='<div class="card"><h3>学生成绩总表</h3><div class="tbl-wrap"><table><thead><tr>'+colsHtml+'</tr></thead><tbody>';
   if(rows.length===0)h+='<tr><td colspan="'+(mm+10)+'" style="color:var(--text3);padding:16px;">暂无数据 ~</td></tr>';
   else for(var r=0;r<rows.length;r++){h+='<tr>';for(var c=0;c<rows[r].length;c++)h+='<td>'+rows[r][c]+'</td>';h+='</tr>';}
@@ -1009,11 +1009,27 @@ function toggleSort(type,idx){
     else{_sortState=null;showAll();return;}
   }else{_sortState={key:key,dir:'desc'};}
   var dir=_sortState.dir;
-  if(type==='sum'){if(dir==='desc')engine.sortDesc();else engine.sortAsc();}
-  else if(type==='aver'){if(dir==='desc')engine.sortDesc();else engine.sortAsc();}
-  else if(type==='num'){if(dir==='desc')engine.sortName();else engine.sortNum();}
-  else if(type==='name'){if(dir==='desc')engine.sortName();else engine.sortNum();}
-  else if(type==='course'){doSortByCourse(idx);if(dir==='asc'){var all=engine.all();all.reverse();engine.clear();for(var i=0;i<all.length;i++)engine.add(all[i].num,all[i].name,all[i].scores);}}
+  if(type==='sum'||type==='aver'){engine.sortDesc();}
+  else if(type==='num'){engine.sortNum();}
+  else if(type==='name'){engine.sortName();}
+  else if(type==='gpa'){
+    var all=engine.all();
+    all.sort(function(a,b){return b.gpa-a.gpa;});
+    engine.clear();
+    for(var i=0;i<all.length;i++)engine.add(all[i].num,all[i].name,all[i].scores);
+  }
+  else if(type==='course'){doSortByCourse(idx);}
+  // 升序则反转
+  if(dir==='asc'&&type!=='course'){
+    var all=engine.all();all.reverse();
+    engine.clear();
+    for(var i=0;i<all.length;i++)engine.add(all[i].num,all[i].name,all[i].scores);
+  }
+  if(type==='course'&&dir==='asc'){
+    var all=engine.all();all.reverse();
+    engine.clear();
+    for(var i=0;i<all.length;i++)engine.add(all[i].num,all[i].name,all[i].scores);
+  }
   autoSave();showAll();
 }
 function showEmpty(){$('contentArea').innerHTML='<div class="empty-msg"><div class="em-icon">📋</div><p>还没有数据哦，去录入吧 (´▽`ʃ♡ƪ)</p></div>';}
