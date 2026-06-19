@@ -422,6 +422,14 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
   .fgrid { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
+  body { overflow-x: auto; }
+  .app-wrap,
+  .topbar,
+  .main-area,
+  .statusbar {
+    min-width: var(--mobile-wide, 100vw);
+    width: var(--mobile-wide, 100vw);
+  }
   .sidebar { display: none; }
   .tab-nav button { padding: 4px 6px; font-size: 0.64rem; }
   .topbar { height: 44px; padding: 0 8px; }
@@ -442,7 +450,8 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
   .card h3 { font-size: 0.82rem; margin-bottom: 4px; padding-bottom: 4px; }
   .statusbar { height: 22px; padding: 0 6px; font-size: 0.6rem; gap: 8px; }
   .statusbar .sv { font-size: 0.68rem; }
-  .tbl-wrap > table { min-width: 620px !important; font-size: 0.7rem; }
+  .tbl-wrap { overflow-x: visible !important; }
+  .tbl-wrap > table { width: max-content !important; min-width: var(--mobile-wide, 100vw) !important; font-size: 0.7rem; }
   thead th { padding: 5px 4px; font-size: 0.62rem; }
   tbody td { padding: 4px 4px; font-size: 0.66rem; }
   .btn-sm { padding: 2px 5px; font-size: 0.62rem; }
@@ -861,6 +870,14 @@ function openModal(title,bodyHtml,onSave){
 function closeModal(){$('modalOverlay').classList.remove('show');}
 $('modalOverlay').addEventListener('click',function(e){if(e.target===$('modalOverlay'))closeModal();});
 
+function syncMobileWide(){
+  if(window.innerWidth>600) return;
+  var tbl=document.querySelector('.tbl-wrap > table');
+  if(!tbl) return;
+  var wide=Math.max(tbl.scrollWidth+16, window.innerWidth);
+  document.documentElement.style.setProperty('--mobile-wide', wide+'px');
+}
+
 function enableTableSwipe(){
   var wraps=document.querySelectorAll('.tbl-wrap');
   for(var i=0;i<wraps.length;i++){
@@ -896,7 +913,7 @@ function renderTable(title,cols,rows,extra){
   for(var i=0;i<cols.length;i++)h+='<th>'+cols[i]+'</th>';h+='</tr></thead><tbody>';
   if(rows.length===0)h+='<tr><td colspan="'+cols.length+'" style="color:var(--text3);padding:16px;">暂无数据 ~ (´-ω-`)</td></tr>';
   else for(var r=0;r<rows.length;r++){h+='<tr>';for(var c=0;c<rows[r].length;c++)h+='<td>'+rows[r][c]+'</td>';h+='</tr>';}
-  h+='</tbody></table></div></div>';$('contentArea').innerHTML=h;enableTableSwipe();
+  h+='</tbody></table></div></div>';$('contentArea').innerHTML=h;syncMobileWide();enableTableSwipe();
 }
 
 // 学生卡片
@@ -983,7 +1000,7 @@ function showAll(){
   var h='<div class="card"><h3>学生成绩总表</h3><div class="tbl-wrap"><table><thead><tr>'+colsHtml+'</tr></thead><tbody>';
   if(rows.length===0)h+='<tr><td colspan="'+(mm+10)+'" style="color:var(--text3);padding:16px;">暂无数据 ~</td></tr>';
   else for(var r=0;r<rows.length;r++){h+='<tr>';for(var c=0;c<rows[r].length;c++)h+='<td>'+rows[r][c]+'</td>';h+='</tr>';}
-  h+='</tbody></table></div></div>';$('contentArea').innerHTML=h;enableTableSwipe();
+  h+='</tbody></table></div></div>';$('contentArea').innerHTML=h;syncMobileWide();enableTableSwipe();
 }
 // 切换排序：第一次降序，第二次升序，第三次取消
 function toggleSort(type,idx){
@@ -1334,7 +1351,7 @@ var actions={input:showInputForm,display:showAll,export:exportCSV,backup:showBac
 $('sidebar').addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;var btns=$('sidebar').querySelectorAll('button');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');b.classList.add('active');try{actions[b.dataset.act]();$('contentArea').scrollTop=0;}catch(err){showToast('出错啦: '+err.message,'err');}});
 
 // Tab
-$('tabNav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;var n=b.dataset.tab,bs=$('tabNav').querySelectorAll('button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');b.classList.add('on');var ps=document.querySelectorAll('.tab-pane');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');$('pane-'+n).classList.add('show');if(n==='source')renderSource();if(n==='about'){setTimeout(function(){try{mermaid.init(undefined,$('pane-about').querySelectorAll('.mermaid'));}catch(e){}},500);}});
+$('tabNav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;var n=b.dataset.tab,bs=$('tabNav').querySelectorAll('button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');b.classList.add('on');var ps=document.querySelectorAll('.tab-pane');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');$('pane-'+n).classList.add('show');if(n!=='demo')document.documentElement.style.setProperty('--mobile-wide','100vw');if(n==='source')renderSource();if(n==='about'){setTimeout(function(){try{mermaid.init(undefined,$('pane-about').querySelectorAll('.mermaid'));}catch(e){}},500);}});
 
 // 移动端菜单
 function toggleMobileMenu(){
