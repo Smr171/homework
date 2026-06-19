@@ -423,19 +423,29 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
 }
 @media (max-width: 600px) {
   .sidebar { display: none; }
-  .tab-nav button { padding: 5px 8px; font-size: 0.7rem; }
-  .topbar h1 { font-size: 0.72rem; max-width: 120px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .tab-nav button { padding: 4px 6px; font-size: 0.64rem; }
+  .topbar { height: 44px; padding: 0 8px; }
+  .topbar h1 { font-size: 0.66rem; max-width: 86px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; gap: 3px; }
+  .topbar h1 .t-icon { font-size: 1rem; }
+  .topbar .right-side { gap: 4px; }
+  .topbar .user-tag { padding: 3px 7px; font-size: 0.66rem; border-radius: 14px; }
+  .role-badge { padding: 1px 6px; font-size: 0.6rem; }
+  .theme-toggle { width: 28px; height: 28px; font-size: 0.82rem; }
+  .btn-logout { padding: 3px 8px; font-size: 0.65rem; }
   .auth-card { padding: 24px 14px 18px; border-radius: 20px; }
   .abt-grid { grid-template-columns: 1fr; }
-  .modal-box { padding: 16px; }
-  .hamburger { display: flex !important; }
+  .modal-box { padding: 12px; }
+  .hamburger { display: flex !important; width: 30px; height: 30px; font-size: 1rem; }
   .main-area { overflow: visible; }
-  .content { overflow-x: visible; padding: 8px 4px; gap: 6px; }
-  .card { padding: 10px 6px; border-radius: 10px; }
-  .card h3 { font-size: 0.9rem; margin-bottom: 6px; padding-bottom: 6px; }
-  .tbl-wrap > table { min-width: 640px !important; font-size: 0.72rem; }
-  thead th { padding: 6px 5px; font-size: 0.68rem; }
-  tbody td { padding: 5px 5px; font-size: 0.7rem; }
+  .content { overflow-x: visible; padding: 4px 2px; gap: 4px; }
+  .card { padding: 8px 4px; border-radius: 8px; }
+  .card h3 { font-size: 0.82rem; margin-bottom: 4px; padding-bottom: 4px; }
+  .statusbar { height: 22px; padding: 0 6px; font-size: 0.6rem; gap: 8px; }
+  .statusbar .sv { font-size: 0.68rem; }
+  .tbl-wrap > table { min-width: 620px !important; font-size: 0.7rem; }
+  thead th { padding: 5px 4px; font-size: 0.62rem; }
+  tbody td { padding: 4px 4px; font-size: 0.66rem; }
+  .btn-sm { padding: 2px 5px; font-size: 0.62rem; }
 }
 .hamburger {
   display: none; width: 36px; height: 36px; align-items: center; justify-content: center;
