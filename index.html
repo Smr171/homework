@@ -422,13 +422,11 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
   .fgrid { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
-  body { overflow-x: auto; overflow-y: auto; min-width: var(--mobile-wide, 100vw); }
-  .app-wrap { min-width: var(--mobile-wide, 100vw); }
-  .main-area { min-width: var(--mobile-wide, 100vw); width: var(--mobile-wide, 100vw); }
-  .statusbar { min-width: var(--mobile-wide, 100vw); width: var(--mobile-wide, 100vw); }
+  body { overflow-x: auto; }
+  .app-wrap { display: block !important; }
   .sidebar { display: none; }
   .tab-nav button { padding: 4px 6px; font-size: 0.64rem; }
-  .topbar { position: relative; min-width: var(--mobile-wide, 100vw); width: var(--mobile-wide, 100vw); height: 44px; padding: 0 8px; }
+  .topbar { position: relative; height: 44px; padding: 0 8px; }
   .topbar h1 { font-size: 0.66rem; max-width: 86px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; gap: 3px; }
   .topbar h1 .t-icon { font-size: 1rem; }
   .topbar .right-side { gap: 4px; }
@@ -873,7 +871,12 @@ function syncMobileWide(){
   if(tbl) wide=Math.max(wide, tbl.scrollWidth+16);
   var pre=document.querySelector('.src-wrap pre');
   if(pre) wide=Math.max(wide, pre.scrollWidth+32);
-  document.documentElement.style.setProperty('--mobile-wide', wide+'px');
+  var w=wide+'px';
+  document.body.style.minWidth=w;
+  var el=document.getElementById('appWrap'); if(el){el.style.minWidth=w;el.style.width=w;}
+  el=document.querySelector('.topbar'); if(el){el.style.minWidth=w;el.style.width=w;}
+  el=document.getElementById('statusBar'); if(el){el.style.minWidth=w;el.style.width=w;}
+  el=document.querySelector('.main-area'); if(el){el.style.minWidth=w;el.style.width=w;}
 }
 
 function enableTableSwipe(){
@@ -1354,7 +1357,7 @@ var actions={input:showInputForm,display:showAll,export:exportCSV,backup:showBac
 $('sidebar').addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;var btns=$('sidebar').querySelectorAll('button');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');b.classList.add('active');try{actions[b.dataset.act]();$('contentArea').scrollTop=0;}catch(err){showToast('出错啦: '+err.message,'err');}});
 
 // Tab
-$('tabNav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;var n=b.dataset.tab,bs=$('tabNav').querySelectorAll('button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');b.classList.add('on');var ps=document.querySelectorAll('.tab-pane');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');$('pane-'+n).classList.add('show');if(n==='about')document.documentElement.style.setProperty('--mobile-wide','100vw');if(n==='source')renderSource();if(n==='about'){setTimeout(function(){try{mermaid.init(undefined,$('pane-about').querySelectorAll('.mermaid'));}catch(e){}},500);}});
+$('tabNav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;var n=b.dataset.tab,bs=$('tabNav').querySelectorAll('button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');b.classList.add('on');var ps=document.querySelectorAll('.tab-pane');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');$('pane-'+n).classList.add('show');if(n==='about'){document.body.style.minWidth='';var el=document.getElementById('appWrap');if(el){el.style.minWidth='';el.style.width='';}el=document.querySelector('.topbar');if(el){el.style.minWidth='';el.style.width='';}el=document.getElementById('statusBar');if(el){el.style.minWidth='';el.style.width='';}el=document.querySelector('.main-area');if(el){el.style.minWidth='';el.style.width='';}}if(n==='source')renderSource();if(n==='about'){setTimeout(function(){try{mermaid.init(undefined,$('pane-about').querySelectorAll('.mermaid'));}catch(e){}},500);}});
 
 // 移动端菜单
 function toggleMobileMenu(){
