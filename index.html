@@ -1515,6 +1515,13 @@ function switchToDemoTab(){
   var ps=document.querySelectorAll('.tab-pane');
   for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');
   $('pane-demo').classList.add('show');
+  // 清除 syncMobileWide 设置的宽度，防止手机端显示放大
+  document.documentElement.style.minWidth='';
+  document.body.style.minWidth='';
+  var el=document.getElementById('appWrap');if(el){el.style.minWidth='';el.style.width='';}
+  el=document.querySelector('.topbar');if(el){el.style.minWidth='';el.style.width='';}
+  el=document.getElementById('statusBar');if(el){el.style.minWidth='';el.style.width='';}
+  el=document.querySelector('.main-area');if(el){el.style.minWidth='';el.style.width='';}
 }
 $('sidebar').addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;var btns=$('sidebar').querySelectorAll('button');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');b.classList.add('active');// 自动切回演示tab
 switchToDemoTab();try{actions[b.dataset.act]();$('contentArea').scrollTop=0;}catch(err){showToast('出错啦: '+err.message,'err');}});
