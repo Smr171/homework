@@ -1125,7 +1125,7 @@ function finishInput(){var d=window._bt?window._bt.done:engine.count();$('batchA
 function loadDemo(){
   engine.clear();var ns=['张三','李四','王五','赵六','钱七','孙八'];var ss=[[88,92,78],[75,85,90],[95,88,82],[60,72,68],[100,96,94],[82,79,91]];
   for(var i=0;i<ns.length;i++)engine.add(2024001+i,ns[i],ss[i]);
-  autoSave();showToast('🎲 已加载'+ns.length+'位演示学生','ok');showAll();
+  showToast('🎲 已加载'+ns.length+'位演示学生(未保存)','ok');showAll();
 }
 
 // ---- 显示全部 ----
