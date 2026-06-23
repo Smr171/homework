@@ -1552,46 +1552,7 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch
 try{mermaid.initialize({startOnLoad:false,theme:'default',securityLevel:'loose'});}catch(e){}
 // 启动
 document.addEventListener('DOMContentLoaded',function(){
-  // 自动恢复登录状态
-  try{
-    var session=JSON.parse(localStorage.getItem('_sg_session'));
-    if(session&&session.user){
-      var accounts=getAccounts();
-      if(accounts[session.user]&&accounts[session.user].status==='approved'){
-        // 以账号数据修正session中的角色
-        var _acct=accounts[session.user];
-        var _role=_acct.role||(_acct.studentId?'student':'teacher');
-        var _stuId=_acct.studentId||null;
-        if(session.role!==_role||session.stuId!==_stuId){session.role=_role;session.stuId=_stuId;localStorage.setItem('_sg_session',JSON.stringify(session));}
-        // 显示自动登录中提示
-        document.getElementById('authOverlay').classList.add('hidden');
-        document.getElementById('appWrap').classList.add('active');
-        document.getElementById('curUser').textContent=session.user;
-        document.getElementById('contentArea').innerHTML='<div class="empty-msg"><div class="em-icon">⏳</div><p style="font-size:1rem;color:var(--text);">正在自动登录...</p><p style="font-size:0.8rem;color:var(--text2);">欢迎回来，'+session.user+'</p></div>';
-        setTimeout(function(){
-          currentUser=session.user;currentRole=_role;userStudentId=_stuId;
-          loadUserData();
-          var badge=document.getElementById('roleBadge');
-          if(_role==='teacher'){
-            document.getElementById('teacherUI').style.display='flex';
-            document.getElementById('studentUI').style.display='none';
-            document.getElementById('statusBar').style.display='flex';
-            badge.textContent='🧑‍🏫 教师';badge.className='role-badge teacher';
-            loadCurFromClass();updateStats();if(engine.count()>0)showAll();
-          }else{
-            document.getElementById('teacherUI').style.display='none';
-            document.getElementById('studentUI').style.display='flex';
-            document.getElementById('statusBar').style.display='none';
-            badge.textContent='🎒 学生';badge.className='role-badge student';
-            showStudentDashboard();
-          }
-          updateWatermark();
-          showToast('✅ 自动登录成功 — '+session.user,'ok');
-        },600);
-        return;
-      }
-    }
-  }catch(e){}
+  // 每次打开页面都显示登录界面，不自动登录
   $('authUser').focus();
 });
 </script>
