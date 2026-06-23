@@ -898,6 +898,14 @@ function doAuth(){
     localStorage.setItem('_sg_fail_'+user,'0');
     if(accounts[user].status==='pending'){msgEl.textContent='账号待教师审核';msgEl.className='msg err';return;}
     if(accounts[user].status==='rejected'){msgEl.textContent='账号已被拒绝，联系老师 ~';msgEl.className='msg err';return;}
+    // 检查标签页角色是否与账号角色匹配
+    var acctRole=accounts[user].role;
+    if(acctRole==='teacher'||acctRole==='student'){
+      if(currentRole!==acctRole){
+        msgEl.textContent=acctRole==='teacher'?'这是教师账号，请切换到「教师端」登录 ~':'这是学生账号，请切换到「学生端」登录 ~';
+        msgEl.className='msg err';return;
+      }
+    }
     loginUser(user,accounts[user]);
   }
 }
