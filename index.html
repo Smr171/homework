@@ -102,12 +102,12 @@ body::before {
    ============================================================ */
 .auth-overlay {
   position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;
-  background: rgba(248,250,252,0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(248,250,252,0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   overflow: hidden;
 }
-[data-theme="dark"] .auth-overlay { background: rgba(2,6,23,0.65); }
+[data-theme="dark"] .auth-overlay { background: rgba(2,6,23,0.45); }
 /* 登录页光团 */
 .auth-overlay::before,
 .auth-overlay::after {
@@ -473,14 +473,17 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #6366f1; }
 
 /* 源码/说明 */
 .src-wrap { flex:1; overflow-y:auto; overflow-x:hidden; padding:18px 20px; }
-.src-wrap pre { border-radius:18px; box-shadow:var(--card-shadow); border:1px solid rgba(255,255,255,0.4); margin-bottom:12px; font-size:0.79rem; line-height:1.55; background:rgba(255,255,255,0.4); overflow-x:auto; -webkit-overflow-scrolling:touch; white-space:pre; word-wrap:normal; backdrop-filter: blur(12px); }
-.src-wrap pre code { font-family:'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace; white-space:pre; }
-[data-theme="dark"] .src-wrap pre { background:rgba(15,23,42,0.55); border-color:rgba(71,85,105,0.2); box-shadow:var(--card-shadow); }
+.src-wrap pre { border-radius:18px; box-shadow:var(--card-shadow); border:1px solid rgba(255,255,255,0.4); margin-bottom:12px; font-size:0.79rem; line-height:1.55; background:rgba(255,255,255,0.4) !important; overflow-x:auto; -webkit-overflow-scrolling:touch; white-space:pre; word-wrap:normal; backdrop-filter: blur(12px); }
+.src-wrap pre code { font-family:'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace; white-space:pre; background:transparent !important; }
+.src-wrap .hljs { background:transparent !important; }
+[data-theme="dark"] .src-wrap pre { background:rgba(15,23,42,0.55) !important; border-color:rgba(71,85,105,0.2); box-shadow:var(--card-shadow); }
 [data-theme="dark"] .src-wrap pre code { color:#cbd5e1; }
 [data-theme="dark"] .src-wrap details summary { background:rgba(15,23,42,0.45); border-color:rgba(71,85,105,0.2); color:#818cf8; }
 [data-theme="dark"] .src-wrap details summary:hover { background:rgba(30,41,59,0.55); }
+[data-theme="dark"] .src-wrap .hljs { background:transparent !important; color:#c9d1d9; }
 [data-theme="dark"] .src-wrap details pre { background:#0d1117 !important; }
-[data-theme="dark"] .hljs { background:#0d1117; color:#c9d1d9; }
+.hljs { background:transparent !important; }
+[data-theme="dark"] .hljs { background:transparent !important; color:#c9d1d9; }
 [data-theme="dark"] .hljs-keyword { color:#ff7b72; }
 [data-theme="dark"] .hljs-type { color:#ffa657; }
 [data-theme="dark"] .hljs-string { color:#a5d6ff; }
@@ -779,7 +782,7 @@ console.log('Firebase SDK ready');
     standby.style.opacity = '0.95';
     active.style.opacity = '0';
   }
-  setInterval(switchBg, 6000);
+  setInterval(switchBg, 10000);
 })();
 
 // ============================================================
