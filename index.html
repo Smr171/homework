@@ -32,7 +32,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
 <!-- ECharts -->
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -56,7 +55,7 @@
   --accent: #6366f1;
   --accent-strong: #4f46e5;
 }
-[data-theme="dark"] { --bg: #020617; --surface: rgba(30,41,59,0.5); --surface2: rgba(30,41,59,0.4); --text: #e2e8f0; --text2: #94a3b8; --text3: #64748b; --border: rgba(255,255,255,0.08); --border2: rgba(71,85,105,0.25); --hover: rgba(255,255,255,0.05); --hover2: rgba(99,102,241,0.06); --card-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 8px 10px -6px rgba(0,0,0,0.2); --topbar-bg: rgba(15,23,42,0.55); --topbar-text: #e2e8f0; --auth-gradient: linear-gradient(160deg, #020617 0%, #0f172a 48%, #020617 100%);
+[data-theme="dark"] { --bg: #020617; --surface: rgba(30,41,59,0.5); --surface2: rgba(30,41,59,0.4); --text: #e2e8f0; --text2: #b0bec5; --text3: #78909c; --border: rgba(255,255,255,0.08); --border2: rgba(71,85,105,0.25); --hover: rgba(255,255,255,0.05); --hover2: rgba(99,102,241,0.06); --card-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 8px 10px -6px rgba(0,0,0,0.2); --topbar-bg: rgba(15,23,42,0.55); --topbar-text: #e2e8f0; --auth-gradient: linear-gradient(160deg, #020617 0%, #0f172a 48%, #020617 100%);
   --code-bg: rgba(15,23,42,0.6); --code-text: #cbd5e1; --code-border: rgba(71,85,105,0.35);
   --modal-overlay: rgba(0,0,0,0.65);
   --page-bg: #020617;
@@ -383,10 +382,6 @@ th.sortable::after { content: '⇅'; position: absolute; right: 4px; font-size: 
 th.sortable.asc::after { content: '▲'; opacity: 1; color: #6366f1; }
 th.sortable.desc::after { content: '▼'; opacity: 1; color: #6366f1; }
 
-/* Mermaid 架构图手机端适配 */
-.mermaid { max-width: 100%; overflow-x: auto; }
-.mermaid svg { max-width: 100%; height: auto; }
-
 /* 源码折叠 */
 .src-wrap details { margin-bottom: 6px; }
 .src-wrap details summary {
@@ -668,7 +663,7 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #6366f1; }
         <div class="feat" style="grid-column:1/-1;"><div class="fi">🏗</div><h3>核心数据结构</h3><div class="code-block"><span class="cm">// 系统核心数据模型</span>
 <span class="kw">struct</span> <span class="tp">Student</span> { <span class="tp">long long</span> num; <span class="tp">string</span> name; <span class="tp">vector</span>&lt;<span class="tp">double</span>&gt; score; <span class="tp">double</span> sum, aver; <span class="tp">string</span> comment; };
 <span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_STUDENTS</span> = <span class="st">100</span>; <span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_COURSES</span> = <span class="st">7</span>;</div></div>
-	        <div class="feat" style="grid-column:1/-1;"><div class="fi">📐</div><h3>系统架构图</h3><div class="mermaid" style="background:rgba(255,255,255,0.28);border-radius:14px;padding:8px;backdrop-filter:blur(12px);">graph TD
+	        <div class="feat" style="grid-column:1/-1;display:none;"><div class="fi">📐</div><h3>系统架构图</h3><div class="mermaid" style="background:rgba(255,255,255,0.28);border-radius:14px;padding:8px;backdrop-filter:blur(12px);">graph TD
     U[用户] --> L[登录/注册]
     L -->|教师| TA[教师端]
     L -->|学生| SA[学生端]
@@ -1579,15 +1574,8 @@ function renderSource(){
 // ============================================================
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){})}
 
-// Mermaid 初始化
-try{mermaid.initialize({startOnLoad:false,theme:'default',securityLevel:'loose'});}catch(e){}
 // 启动
 document.addEventListener('DOMContentLoaded',function(){
-  // 预渲染架构图避免手机端隐藏tab渲染异常
-  try{
-    var _mmSrc='graph TD\n    U[用户] --> L[登录/注册]\n    L -->|教师| TA[教师端]\n    L -->|学生| SA[学生端]\n    TA --> CL[创建班级/邀请码]\n    CL --> CR[成绩录入/统计/排序]\n    SA --> JC[输入邀请码加入班级]\n    JC --> VW[查看个人成绩/GPA]\n    CR --> EN[核心计算引擎]\n    VW --> EN\n    EN --> WASM[C++ WASM]\n    EN --> JS[JS降级]';
-    mermaid.render('mermaidSvg',_mmSrc).then(function(r){var el=document.querySelector('#pane-about .mermaid');if(el){el.innerHTML=r.svg;}}).catch(function(){});
-  }catch(e){}
   // 每次打开页面都显示登录界面，不自动登录
   $('authUser').focus();
 });
