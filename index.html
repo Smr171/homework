@@ -71,31 +71,42 @@ body {
   font-family: 'Noto Serif SC', 'STSong', 'SimSun', 'Songti SC', 'PingFang SC', 'Microsoft YaHei', serif;
   background: #f8fafc; color: var(--text); min-height: 100vh; line-height: 1.8; overflow-x: hidden; position: relative;
 }
-/* xinghuisama.top 风格 — 3层背景 */
-/* 第1层: 大模糊光团 (blur-[100px]) */
+/* xinghuisama.top 风格 — 4层背景 (图片 → 模糊叠加 → 混合 → 光团) */
+/* 第1层(z-[-10]): 全屏背景图片，覆盖整个视口 */
 body::before {
   content: ''; position: fixed; inset: 0; pointer-events: none; z-index: -10;
-  background:
-    radial-gradient(circle at 15% 20%, rgba(255,255,255,0.4), transparent 50%),
-    radial-gradient(circle at 85% 75%, rgba(129,140,248,0.18), transparent 50%);
-  filter: blur(100px);
+  background-image: url('https://bu.dusays.com/2026/03/24/69c1e38b4c370.jpg');
+  background-size: cover; background-position: center; background-repeat: no-repeat;
+  opacity: 0.85;
 }
-/* 第2层: 半透明叠加 (bg-white/30 + backdrop-blur-md) */
+/* 第2层(z-[-9]): 半透明白色 + 毛玻璃模糊 — 模糊下面的图片 */
 body::after {
   content: ''; position: fixed; inset: 0; pointer-events: none; z-index: -9;
   background: rgba(255,255,255,0.3);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
+/* 第3+4层: 混合叠加 + 光团 */
+.bg-blend-layer { position:fixed;inset:0;pointer-events:none;z-index:-8;opacity:0.6;mix-blend-mode:color;background:linear-gradient(180deg,#f8fafc,#e2e8f0 50%,#f8fafc); }
+.bg-blob-tl { position:fixed;top:-10%;left:-10%;width:40%;height:40%;pointer-events:none;z-index:-7;background:rgba(255,255,255,0.4);filter:blur(100px);border-radius:50%; }
+.bg-blob-br { position:fixed;bottom:-10%;right:-10%;width:40%;height:40%;pointer-events:none;z-index:-7;background:rgba(129,140,248,0.18);filter:blur(100px);border-radius:50%; }
+[data-theme="dark"] .bg-blend-layer { opacity:0.2; background:linear-gradient(180deg,#020617,#0f172a 50%,#020617); }
+[data-theme="dark"] .bg-blob-tl { background:rgba(67,56,202,0.12); }
+[data-theme="dark"] .bg-blob-br { background:rgba(126,34,206,0.1); }
+[data-theme="dark"] body::before { opacity:0.4; }
+[data-theme="dark"] body::after { background:rgba(15,23,42,0.4); }
 
 /* ============================================================
    登录页
    ============================================================ */
 .auth-overlay {
   position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;
-  background: #f8fafc;
+  background: rgba(248,250,252,0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   overflow: hidden;
 }
+[data-theme="dark"] .auth-overlay { background: rgba(2,6,23,0.65); }
 /* 登录页光团 */
 .auth-overlay::before,
 .auth-overlay::after {
@@ -535,6 +546,11 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #6366f1; }
 </style>
 </head>
 <body>
+
+<!-- xinghuisama.top 风格背景层: 混合+光团 -->
+<div class="bg-blend-layer"></div>
+<div class="bg-blob-tl"></div>
+<div class="bg-blob-br"></div>
 
 <!-- ======== 登录页 ======== -->
 <div class="auth-overlay" id="authOverlay">
