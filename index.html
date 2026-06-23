@@ -1018,18 +1018,11 @@ $('modalOverlay').addEventListener('click',function(e){if(e.target===$('modalOve
 
 function syncMobileWide(){
   if(window.innerWidth>600) return;
-  var wide=window.innerWidth;
+  // 只让表格和代码块内部可滚动，不影响整页宽度
   var tbl=document.querySelector('.tbl-wrap > table');
-  if(tbl) wide=Math.max(wide, tbl.scrollWidth+16);
+  if(tbl){ var tw=tbl.scrollWidth+16; if(tw>window.innerWidth) tbl.style.minWidth=tw+'px'; }
   var pre=document.querySelector('.src-wrap pre');
-  if(pre) wide=Math.max(wide, pre.scrollWidth+32);
-  var w=wide+'px';
-  document.documentElement.style.minWidth=w;
-  document.body.style.minWidth=w;
-  var el=document.getElementById('appWrap'); if(el){el.style.minWidth=w;el.style.width=w;}
-  el=document.querySelector('.topbar'); if(el){el.style.minWidth=w;el.style.width=w;}
-  el=document.getElementById('statusBar'); if(el){el.style.minWidth=w;el.style.width=w;}
-  el=document.querySelector('.main-area'); if(el){el.style.minWidth=w;el.style.width=w;}
+  if(pre){ var pw=pre.scrollWidth+32; if(pw>window.innerWidth) pre.style.minWidth=pw+'px'; }
 }
 
 function enableTableSwipe(){
@@ -1515,19 +1508,12 @@ function switchToDemoTab(){
   var ps=document.querySelectorAll('.tab-pane');
   for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');
   $('pane-demo').classList.add('show');
-  // 清除 syncMobileWide 设置的宽度，防止手机端显示放大
-  document.documentElement.style.minWidth='';
-  document.body.style.minWidth='';
-  var el=document.getElementById('appWrap');if(el){el.style.minWidth='';el.style.width='';}
-  el=document.querySelector('.topbar');if(el){el.style.minWidth='';el.style.width='';}
-  el=document.getElementById('statusBar');if(el){el.style.minWidth='';el.style.width='';}
-  el=document.querySelector('.main-area');if(el){el.style.minWidth='';el.style.width='';}
 }
 $('sidebar').addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;var btns=$('sidebar').querySelectorAll('button');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');b.classList.add('active');// 自动切回演示tab
 switchToDemoTab();try{actions[b.dataset.act]();$('contentArea').scrollTop=0;}catch(err){showToast('出错啦: '+err.message,'err');}});
 
 // Tab
-$('tabNav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;var n=b.dataset.tab,bs=$('tabNav').querySelectorAll('button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');b.classList.add('on');var ps=document.querySelectorAll('.tab-pane');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');$('pane-'+n).classList.add('show');if(n==='demo'||n==='about'){document.documentElement.style.minWidth='';document.body.style.minWidth='';var el=document.getElementById('appWrap');if(el){el.style.minWidth='';el.style.width='';}el=document.querySelector('.topbar');if(el){el.style.minWidth='';el.style.width='';}el=document.getElementById('statusBar');if(el){el.style.minWidth='';el.style.width='';}el=document.querySelector('.main-area');if(el){el.style.minWidth='';el.style.width='';}}if(n==='source')renderSource();if(n==='about'){setTimeout(function(){try{mermaid.run({querySelector:'#pane-about .mermaid'});}catch(e){}},400);}});
+$('tabNav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;var n=b.dataset.tab,bs=$('tabNav').querySelectorAll('button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');b.classList.add('on');var ps=document.querySelectorAll('.tab-pane');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');$('pane-'+n).classList.add('show');if(n==='source')renderSource();if(n==='about'){setTimeout(function(){try{mermaid.run({querySelector:'#pane-about .mermaid'});}catch(e){}},400);}});
 
 // 移动端菜单
 function toggleMobileMenu(){
