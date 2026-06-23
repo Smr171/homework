@@ -71,20 +71,21 @@ body {
   font-family: 'Noto Serif SC', 'STSong', 'SimSun', 'Songti SC', 'PingFang SC', 'Microsoft YaHei', serif;
   background: #f8fafc; color: var(--text); min-height: 100vh; line-height: 1.8; overflow-x: hidden; position: relative;
 }
-/* xinghuisama.top 风格 — 4层背景 (图片 → 模糊叠加 → 混合 → 光团) */
-/* 第1层(z-[-10]): 全屏背景图片，覆盖整个视口 */
-body::before {
-  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: -10;
-  background-image: url('https://bu.dusays.com/2026/03/24/69c1e38b4c370.jpg');
+/* xinghuisama.top 风格 — 多图轮播背景 */
+/* 第1层(z-[-10]): 双图片层做交叉淡入淡出 */
+.bg-img-layer {
+  position: fixed; inset: 0; pointer-events: none; z-index: -10;
   background-size: cover; background-position: center; background-repeat: no-repeat;
-  opacity: 0.95;
+  transition: opacity 2s ease-in-out;
 }
-/* 第2层(z-[-9]): 半透明白色 + 毛玻璃模糊 — 模糊下面的图片 */
-body::after {
+#bgImgA { opacity: 0.95; }
+#bgImgB { opacity: 0; }
+/* 第2层(z-[-9]): 半透明白色 + 毛玻璃模糊 */
+body::before {
   content: ''; position: fixed; inset: 0; pointer-events: none; z-index: -9;
   background: rgba(255,255,255,0.24);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(10px);
 }
 /* 第3+4层: 混合叠加 + 光团 */
 .bg-blend-layer { position:fixed;inset:0;pointer-events:none;z-index:-8;opacity:0.6;mix-blend-mode:color;background:linear-gradient(180deg,#f8fafc,#e2e8f0 50%,#f8fafc); transition: opacity 2s ease-in-out; }
@@ -93,8 +94,8 @@ body::after {
 [data-theme="dark"] .bg-blend-layer { opacity:0.2; background:linear-gradient(180deg,#020617,#0f172a 50%,#020617); }
 [data-theme="dark"] .bg-blob-tl { background:rgba(67,56,202,0.12); }
 [data-theme="dark"] .bg-blob-br { background:rgba(126,34,206,0.1); }
-[data-theme="dark"] body::before { opacity:0.4; }
-[data-theme="dark"] body::after { background:rgba(15,23,42,0.4); }
+[data-theme="dark"] .bg-img-layer { opacity:0.4 !important; }
+[data-theme="dark"] body::before { background:rgba(15,23,42,0.4); }
 
 /* ============================================================
    登录页
@@ -408,7 +409,7 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #6366f1; }
 .bars { display: flex; flex-direction: column; gap: 4px; }
 .bars .br { display: flex; align-items: center; gap: 6px; }
 .bars .br .bl { min-width: 48px; font-size: 0.76rem; font-weight: 600; color: var(--text2); text-align: right; }
-.bars .br .bt { flex: 1; height: 22px; background: var(--bg); border-radius: 5px; overflow: hidden; }
+.bars .br .bt { flex: 1; height: 22px; background: rgba(148,163,184,0.12); border-radius: 5px; overflow: hidden; backdrop-filter: blur(4px); }
 .bars .br .bf { height: 100%; border-radius: 5px; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; padding-left: 6px; font-size: 0.68rem; font-weight: 700; color: #fff; }
 .bars .br .bc { min-width: 80px; font-size: 0.76rem; color: var(--text2); font-weight: 500; }
 .bf-c0 { background: linear-gradient(90deg, #ef4444, #dc2626); } .bf-c1 { background: linear-gradient(90deg, #f59e0b, #d97706); }
@@ -560,7 +561,9 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #6366f1; }
 </head>
 <body>
 
-<!-- xinghuisama.top 风格背景层: 混合+光团 -->
+<!-- xinghuisama.top 风格背景层: 双图轮播+混合+光团 -->
+<div class="bg-img-layer" id="bgImgA" style="background-image:url('https://bu.dusays.com/2026/03/24/69c1e38b4c370.jpg');"></div>
+<div class="bg-img-layer" id="bgImgB" style="background-image:url('https://bu.dusays.com/2026/03/24/69c26fe4acdb5.jpg');"></div>
 <div class="bg-blend-layer"></div>
 <div class="bg-blob-tl"></div>
 <div class="bg-blob-br"></div>
@@ -658,7 +661,7 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #6366f1; }
         <div class="feat" style="grid-column:1/-1;"><div class="fi">🏗</div><h3>核心数据结构</h3><div class="code-block"><span class="cm">// 系统核心数据模型</span>
 <span class="kw">struct</span> <span class="tp">Student</span> { <span class="tp">long long</span> num; <span class="tp">string</span> name; <span class="tp">vector</span>&lt;<span class="tp">double</span>&gt; score; <span class="tp">double</span> sum, aver; <span class="tp">string</span> comment; };
 <span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_STUDENTS</span> = <span class="st">100</span>; <span class="kw">constexpr</span> <span class="tp">int</span> <span class="st">MAX_COURSES</span> = <span class="st">7</span>;</div></div>
-	        <div class="feat" style="grid-column:1/-1;"><div class="fi">📐</div><h3>系统架构图</h3><div class="mermaid" style="background:#fff;border-radius:10px;padding:8px;">graph TD
+	        <div class="feat" style="grid-column:1/-1;"><div class="fi">📐</div><h3>系统架构图</h3><div class="mermaid" style="background:rgba(255,255,255,0.4);border-radius:14px;padding:8px;backdrop-filter:blur(12px);">graph TD
     U[用户] --> L[登录/注册]
     L -->|教师| TA[教师端]
     L -->|学生| SA[学生端]
@@ -747,6 +750,36 @@ console.log('Firebase SDK ready');
     requestAnimationFrame(draw);
   }
   draw();
+})();
+
+// ============================================================
+// 背景图片轮播 — 参考 xinghuisama.top 的多图交叉淡入淡出
+// ============================================================
+(function initBgRotate(){
+  var images = [
+    'https://bu.dusays.com/2026/03/24/69c1e38b4c370.jpg',
+    'https://bu.dusays.com/2026/03/24/69c26fe4acdb5.jpg',
+    'https://bu.dusays.com/2026/03/24/69c26fe4d9486.jpg',
+    'https://bu.dusays.com/2026/03/24/69c26fe4d55b6.jpg',
+    'https://bu.dusays.com/2026/03/24/69c26fe50cf3f.jpg',
+    'https://bu.dusays.com/2026/03/26/69c542954a80d.jpg',
+    'https://bu.dusays.com/2026/03/26/69c542fd70279.jpg'
+  ];
+  var cur = 0, elA = document.getElementById('bgImgA'), elB = document.getElementById('bgImgB');
+  if(!elA||!elB) return;
+  // 预加载
+  for(var i=0;i<images.length;i++){
+    var img=new Image(); img.src=images[i];
+  }
+  function switchBg(){
+    cur = (cur+1) % images.length;
+    var active = (cur%2===0) ? elA : elB;
+    var standby = (cur%2===0) ? elB : elA;
+    standby.style.backgroundImage = 'url(\x27'+images[cur]+'\x27)';
+    standby.style.opacity = '0.95';
+    active.style.opacity = '0';
+  }
+  setInterval(switchBg, 6000);
 })();
 
 // ============================================================
