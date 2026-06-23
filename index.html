@@ -18,7 +18,7 @@
 <meta property="og:type" content="website">
 <meta property="og:locale" content="zh_CN">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
-<meta name="theme-color" content="#1e3a8a">
+<meta name="theme-color" content="#B04055">
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
@@ -43,16 +43,16 @@
    变量 — 亮色 / 暗色
    ============================================================ */
 :root {
-  --bg: #f6f7fb; --surface: #fff; --surface2: #faf9fb; --text: #333; --text2: #888; --text3: #bbb;
-  --border: #e0e8f4; --border2: #d0d8f0; --hover: #eff6ff; --hover2: #eff6ff;
+  --bg: #FFFAFA; --surface: #FFFFFF; --surface2: #faf9fb; --text: #4A3035; --text2: #997880; --text3: #C0A8AE;
+  --border: #F5D5DA; --border2: #E8CCD0; --hover: #FFF0F2; --hover2: #FFF0F2;
   --card-shadow: 0 2px 12px rgba(59,130,246,0.06);
-  --topbar-bg: linear-gradient(135deg, #1e3a8a 0%, #1e40af 45%, #1d4ed8 100%);
-  --auth-gradient: linear-gradient(160deg, #020617 0%, #0f172a 30%, #1e293b 55%, #0c1929 75%, #020617 100%);
-  --code-bg: #0f172a; --code-text: #bfdbfe; --code-border: #1e3a5f;
+  --topbar-bg: linear-gradient(135deg, #B04055 0%, #C0556A 45%, #D4687C 100%);
+  --auth-gradient: linear-gradient(160deg, #FFF5F5 0%, #FFF0F0 30%, #FFE8EA 55%, #FFF8F5 75%, #FFF5F5 100%);
+  --code-bg: #FFF0F0; --code-text: #FDE0E5; --code-border: #8B3040;
   --modal-overlay: rgba(0,0,0,0.4);
 }
-[data-theme="dark"] { --bg: #020617; --surface: #0f172a; --surface2: #1e293b; --text: #e2e8f0; --text2: #94a3b8; --text3: #64748b; --border: #1e3a5f; --border2: #2a4a7f; --hover: #1a3050; --hover2: #243860; --card-shadow: 0 2px 14px rgba(0,0,0,0.4); --topbar-bg: linear-gradient(135deg, #1e3a8a, #1e40af, #1d4ed8); --auth-gradient: linear-gradient(160deg, #020617 0%, #0a1030 30%, #101840 55%, #080818 75%, #020617 100%);
-  --code-bg: #020617; --code-text: #93bbfe; --code-border: #1e3a5f;
+[data-theme="dark"] { --bg: #FFF5F5; --surface: #FFF0F0; --surface2: #FFE8EA; --text: #e2e8f0; --text2: #94a3b8; --text3: #64748b; --border: #8B3040; --border2: #6B4550; --hover: #402830; --hover2: #243860; --card-shadow: 0 2px 14px rgba(0,0,0,0.4); --topbar-bg: linear-gradient(135deg, #B04055, #C0556A, #D4687C); --auth-gradient: linear-gradient(160deg, #FFF5F5 0%, #0a1030 30%, #101840 55%, #080818 75%, #FFF5F5 100%);
+  --code-bg: #FFF5F5; --code-text: #93bbfe; --code-border: #8B3040;
   --modal-overlay: rgba(0,0,0,0.65);
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -115,7 +115,7 @@ body {
   border-radius: 15px; overflow: hidden; transition: all 0.25s;
 }
 [data-theme="dark"] .auth-card .field .iwrap { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.06); }
-.auth-card .field .iwrap:focus-within { border-color: rgba(100,160,255,0.5); background: rgba(255,255,255,0.1); box-shadow: 0 0 0 4px rgba(59,130,246,0.08); }
+.auth-card .field .iwrap:focus-within { border-color: rgba(100,160,255,0.5); background: rgba(255,255,255,0.1); box-shadow: 0 0 0 4px rgba(220,120,140,0.08); }
 [data-theme="dark"] .auth-card .field .iwrap:focus-within { background: rgba(255,255,255,0.06); }
 .auth-card .field .iico { padding: 0 4px 0 15px; font-size: 1rem; flex-shrink: 0; }
 .auth-card .field input {
@@ -126,21 +126,21 @@ body {
 [data-theme="dark"] .auth-card .field input::placeholder { color: rgba(255,255,255,0.2); }
 .auth-card .field .iico { color: rgba(255,255,255,0.4); }
 .auth-card .switch-line { color: rgba(255,255,255,0.4); }
-.auth-card .switch-line a { color: #60a5fa; }
+.auth-card .switch-line a { color: #F8C0CA; }
 .auth-card .msg.err { color: #f87171; }
-.auth-card .msg.ok { color: #60a5fa; }
+.auth-card .msg.ok { color: #F8C0CA; }
 
 .auth-card .btn-row { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
 .btn-bili-login {
   width: 100%; padding: 13px; border: none; border-radius: 15px; font-size: 1rem;
   font-weight: 700; cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   font-family: inherit; letter-spacing: 0.03em;
-  background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff;
+  background: linear-gradient(135deg, #F4A0B0, #E8879A); color: #fff;
   box-shadow: 0 4px 16px rgba(59,130,246,0.35);
 }
 .btn-bili-login:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(59,130,246,0.5); }
 .auth-card .switch-line { text-align: center; margin-top: 16px; font-size: 0.8rem; color: var(--text3); }
-.auth-card .switch-line a { color: #1e40af; cursor: pointer; text-decoration: none; font-weight: 700; }
+.auth-card .switch-line a { color: #C0556A; cursor: pointer; text-decoration: none; font-weight: 700; }
 .auth-card .msg { font-size: 0.78rem; margin-top: 2px; min-height: 18px; text-align: center; }
 .auth-card .msg.err { color: #ef4444; } .auth-card .msg.ok { color: #38bdf8; }
 
@@ -153,7 +153,7 @@ body {
 .topbar {
   background: var(--topbar-bg); color: #fff; padding: 0 16px; height: 56px;
   display: flex; align-items: center; justify-content: space-between;
-  box-shadow: 0 2px 14px rgba(59,130,246,0.3); position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 14px rgba(220,120,140,0.3); position: sticky; top: 0; z-index: 100;
 }
 .topbar h1 { font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 6px; }
 .topbar h1 .t-icon { font-size: 1.4rem; animation: bounce 2s ease-in-out infinite; }
@@ -163,7 +163,7 @@ body {
   border-radius: 20px; font-size: 0.78rem; display: flex; align-items: center; gap: 5px;
 }
 .role-badge { padding: 2px 10px; border-radius: 10px; font-size: 0.68rem; font-weight: 700; }
-.role-badge.teacher { background: #60a5fa; color: #7c5e00; }
+.role-badge.teacher { background: #F8C0CA; color: #8B3040; }
 .role-badge.student { background: #b8f0e0; color: #007050; }
 .theme-toggle {
   background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff;
@@ -182,7 +182,7 @@ body {
   background: none; color: rgba(255,255,255,0.8); border: none; padding: 7px 14px;
   border-radius: 10px; cursor: pointer; font-size: 0.84rem; font-weight: 500; transition: all 0.2s; font-family: inherit;
 }
-.tab-nav button.on { color: #1e40af; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); font-weight: 700; }
+.tab-nav button.on { color: #C0556A; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); font-weight: 700; }
 
 /* ============================================================
    侧边栏 + 内容区
@@ -200,8 +200,8 @@ body {
   padding: 8px 12px; border: none; border-radius: 10px; background: none; color: var(--text);
   font-size: 0.82rem; cursor: pointer; text-align: left; transition: all 0.18s; font-family: inherit;
 }
-.sidebar button:hover { background: var(--hover); color: #1e40af; }
-.sidebar button.active { background: #1e40af; color: #fff; font-weight: 700; box-shadow: 0 2px 8px rgba(30,64,175,0.4); }
+.sidebar button:hover { background: var(--hover); color: #C0556A; }
+.sidebar button.active { background: #C0556A; color: #fff; font-weight: 700; box-shadow: 0 2px 8px rgba(30,64,175,0.4); }
 .sidebar button .s-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
 
 .content { flex: 1; overflow-y: auto; padding: 16px 12px; display: flex; flex-direction: column; gap: 12px; }
@@ -210,7 +210,7 @@ body {
   box-shadow: var(--card-shadow); border: 1px solid var(--border); transition: all 0.25s;
 }
 .card h3 {
-  font-size: 1rem; background: linear-gradient(135deg, #3b82f6, #1e40af);
+  font-size: 1rem; background: linear-gradient(135deg, #F4A0B0, #C0556A);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid var(--hover);
   display: flex; align-items: center; gap: 7px;
@@ -219,7 +219,7 @@ body {
   height: 30px; background: var(--surface); border-top: 1px solid var(--border);
   display: flex; align-items: center; padding: 0 16px; font-size: 0.74rem; color: var(--text2); gap: 14px; flex-shrink: 0;
 }
-.statusbar .sv { font-weight: 700; color: #1e40af; font-size: 0.83rem; }
+.statusbar .sv { font-weight: 700; color: #C0556A; font-size: 0.83rem; }
 
 /* ============================================================
    表格
@@ -228,10 +228,10 @@ body {
 .tbl-wrap > table { width: 100%; min-width: 720px; white-space: nowrap; table-layout: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
 thead th {
-  background: linear-gradient(180deg, #eff6ff, #dbeafe); color: #1e40af; font-weight: 700;
+  background: linear-gradient(180deg, #FFF0F2, #FFE0E5); color: #C0556A; font-weight: 700;
   padding: 8px 8px; text-align: center; white-space: nowrap; border-bottom: 2px solid #f8c8d8;
 }
-[data-theme="dark"] thead th { background: linear-gradient(180deg, #1e3a5f, #1e293b); color: #f0a0c0; border-color: #2a4a7f; }
+[data-theme="dark"] thead th { background: linear-gradient(180deg, #8B3040, #FFE8EA); color: #f0a0c0; border-color: #6B4550; }
 tbody td { padding: 7px 8px; text-align: center; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
 tbody tr:hover { background: var(--hover); }
 tbody tr:nth-child(even) { background: var(--surface2); }
@@ -256,7 +256,7 @@ tbody tr:nth-child(even) { background: var(--surface2); }
   max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
   animation: cardIn 0.3s ease;
 }
-.modal-box h3 { font-size: 1.05rem; color: #1e40af; margin-bottom: 14px; }
+.modal-box h3 { font-size: 1.05rem; color: #C0556A; margin-bottom: 14px; }
 .modal-box .btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 
 /* ============================================================
@@ -269,7 +269,7 @@ tbody tr:nth-child(even) { background: var(--surface2); }
   padding: 8px 11px; border: 1.5px solid var(--border2); border-radius: 10px; font-size: 0.85rem;
   font-family: inherit; transition: all 0.2s; background: var(--surface2); color: var(--text);
 }
-.fg input:focus, .fg textarea:focus { outline: none; border-color: #1e40af; box-shadow: 0 0 0 3px rgba(59,130,246,0.07); }
+.fg input:focus, .fg textarea:focus { outline: none; border-color: #C0556A; box-shadow: 0 0 0 3px rgba(59,130,246,0.07); }
 .fg textarea { resize: vertical; min-height: 60px; }
 .btn {
   padding: 8px 16px; border: none; border-radius: 10px; font-size: 0.85rem; font-weight: 600;
@@ -284,23 +284,23 @@ tbody tr:nth-child(even) { background: var(--surface2); }
   opacity: 0; transition: opacity 0.4s; pointer-events: none;
 }
 .btn:active::after { opacity: 1; transition: opacity 0s; }
-.btn-pri { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
+.btn-pri { background: linear-gradient(135deg, #F4A0B0, #E8879A); color: #fff; }
 .btn-ok  { background: linear-gradient(135deg, #38bdf8, #1eb8e8); color: #fff; }
 .btn-red { background: #ef4444; color: #fff; }
-.btn-out { background: var(--surface); color: #1e40af; border: 1.5px solid #3b82f6; }
+.btn-out { background: var(--surface); color: #C0556A; border: 1.5px solid #F4A0B0; }
 
 /* 可排序表头 */
 th.sortable { cursor: pointer; user-select: none; position: relative; padding-right: 18px !important; }
-th.sortable:hover { background: #bfdbfe; }
+th.sortable:hover { background: #FDE0E5; }
 th.sortable::after { content: '⇅'; position: absolute; right: 4px; font-size: 0.7rem; opacity: 0.3; }
-th.sortable.asc::after { content: '▲'; opacity: 1; color: #1e40af; }
-th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
+th.sortable.asc::after { content: '▲'; opacity: 1; color: #C0556A; }
+th.sortable.desc::after { content: '▼'; opacity: 1; color: #C0556A; }
 
 /* 源码折叠 */
 .src-wrap details { margin-bottom: 6px; }
 .src-wrap details summary {
   cursor: pointer; padding: 8px 14px; background: var(--surface2); border-radius: 8px;
-  font-size: 0.85rem; font-weight: 600; color: #1e40af; border: 1px solid var(--border);
+  font-size: 0.85rem; font-weight: 600; color: #C0556A; border: 1px solid var(--border);
   transition: all 0.2s; list-style: none;
 }
 .src-wrap details summary::-webkit-details-marker { display: none; }
@@ -326,7 +326,7 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
 .bars .br .bf { height: 100%; border-radius: 5px; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; padding-left: 6px; font-size: 0.68rem; font-weight: 700; color: #fff; }
 .bars .br .bc { min-width: 80px; font-size: 0.76rem; color: var(--text2); font-weight: 500; }
 .bf-c0 { background: linear-gradient(90deg, #ef4444, #dc2626); } .bf-c1 { background: linear-gradient(90deg, #f59e0b, #d97706); }
-.bf-c2 { background: linear-gradient(90deg, #3b82f6, #2563eb); } .bf-c3 { background: linear-gradient(90deg, #06b6d4, #0891b2); }
+.bf-c2 { background: linear-gradient(90deg, #F4A0B0, #E8879A); } .bf-c3 { background: linear-gradient(90deg, #06b6d4, #0891b2); }
 .bf-c4 { background: linear-gradient(90deg, #10b981, #059669); } .bf-c5 { background: linear-gradient(90deg, #8b5cf6, #7c3aed); }
 
 .s-card {
@@ -334,13 +334,13 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
   padding: 16px 20px; box-shadow: var(--card-shadow); max-width: 460px; margin-bottom: 10px;
 }
 .s-card .sc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid var(--hover); }
-.s-card .sc-head .sc-name { font-size: 1.05rem; font-weight: 800; color: #1e40af; }
+.s-card .sc-head .sc-name { font-size: 1.05rem; font-weight: 800; color: #C0556A; }
 .s-card .sc-head .sc-id { font-size: 0.78rem; color: var(--text3); }
 .s-card .sc-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 0.84rem; }
 .s-card .sc-row.divider { border-top: 1px solid var(--border); margin-top: 5px; padding-top: 7px; }
 .teacher-comment {
   margin-top: 8px; padding: 10px 13px; background: var(--hover); border-radius: 10px;
-  border-left: 3px solid #3b82f6; font-size: 0.82rem; color: var(--text2); font-style: italic;
+  border-left: 3px solid #F4A0B0; font-size: 0.82rem; color: var(--text2); font-style: italic;
 }
 
 /* ============================================================
@@ -359,7 +359,7 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
    其他
    ============================================================ */
 .rk { display: inline-block; min-width: 24px; padding: 2px 7px; border-radius: 11px; font-weight: 700; font-size: 0.74rem; }
-.rk-1 { background: linear-gradient(135deg, #60a5fa, #3b82f6); color: #7c5e00; }
+.rk-1 { background: linear-gradient(135deg, #F8C0CA, #F4A0B0); color: #8B3040; }
 .rk-2 { background: #e8ecf2; color: #5a6a7a; } .rk-3 { background: #ffe0cc; color: #b8601a; }
 .sc-great { color: #38bdf8; font-weight: 700; } .sc-good { color: #52c41a; font-weight: 600; }
 .sc-ok { color: #fa8c16; } .sc-bad { color: #ef4444; font-weight: 700; }
@@ -370,12 +370,12 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
   border-radius: 12px; font-weight: 600; font-size: 0.82rem;
   box-shadow: 0 8px 24px rgba(0,0,0,0.14); animation: toastIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); max-width: 370px;
 }
-.toast-ok { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+.toast-ok { background: #FFE0E5; color: #C0556A; border: 1px solid #FAD0D8; }
 .toast-err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-.toast-info { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
-[data-theme="dark"] .toast-ok { background: #0a1828; color: #60a5fa; border-color: #285070; }
-[data-theme="dark"] .toast-err { background: #1a1020; color: #f87171; border-color: #302850; }
-[data-theme="dark"] .toast-info { background: #182030; color: #93c5fd; border-color: #283850; }
+.toast-info { background: #FFF0F2; color: #C0556A; border: 1px solid #FDE0E5; }
+[data-theme="dark"] .toast-ok { background: #1F1A22; color: #F8C0CA; border-color: #285070; }
+[data-theme="dark"] .toast-err { background: #2D1E24; color: #f87171; border-color: #302850; }
+[data-theme="dark"] .toast-info { background: #182030; color: #FAD0D8; border-color: #283850; }
 @keyframes toastIn { from{transform:translateX(110%);opacity:0;} to{transform:translateX(0);opacity:1;} }
 
 /* 水印 */
@@ -406,7 +406,7 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
 .abt-grid { flex:1; overflow-y:auto; padding:18px; display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; align-content:start; }
 .feat { background:var(--surface); border-radius:16px; padding:16px 18px; box-shadow:var(--card-shadow); border:1px solid var(--border); transition:all 0.25s; }
 .feat:hover { transform:translateY(-3px); box-shadow:0 8px 26px rgba(59,130,246,0.1); }
-.feat .fi { font-size:1.7rem; margin-bottom:6px; } .feat h3 { font-size:0.93rem; color:#1e40af; margin-bottom:3px; font-weight:700; }
+.feat .fi { font-size:1.7rem; margin-bottom:6px; } .feat h3 { font-size:0.93rem; color:#C0556A; margin-bottom:3px; font-weight:700; }
 .feat p { font-size:0.78rem; color:var(--text2); line-height:1.6; }
 
 .code-block {
@@ -474,7 +474,7 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
 <div class="auth-overlay" id="authOverlay">
   <canvas id="sakuraCanvas"></canvas>
   <div class="auth-glow">
-    <div class="glow" style="width:280px;height:280px;background:#3b82f6;top:-80px;left:-60px;"></div>
+    <div class="glow" style="width:280px;height:280px;background:#F4A0B0;top:-80px;left:-60px;"></div>
     <div class="glow" style="width:220px;height:220px;background:#38bdf8;bottom:-60px;right:-40px;animation-delay:4s;"></div>
   </div>
   <div class="auth-card" id="authCard">
@@ -548,7 +548,7 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #1e40af; }
       </div>
       <div id="studentUI" style="display:none;flex:1;overflow-y:auto;">
         <div class="student-dash" id="studentDash" style="padding:20px 24px;display:flex;flex-direction:column;align-items:center;gap:16px;">
-          <div style="text-align:center;padding:20px 14px;"><span style="font-size:3.5rem;display:block;margin-bottom:6px;animation:mascotFloat 2s ease-in-out infinite;">🎒</span><h2 style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;">我的成绩单 (◍•ᴗ•◍)</h2><p style="color:var(--text3);font-size:0.83rem;">以下是你的成绩信息 ~</p><div style="display:inline-block;margin-top:6px;background:var(--hover);color:#3b82f6;padding:4px 14px;border-radius:20px;font-size:0.85rem;font-weight:700;border:1.5px solid #bfdbfe;">学号: <span id="stuIdDisplay">---</span></div></div>
+          <div style="text-align:center;padding:20px 14px;"><span style="font-size:3.5rem;display:block;margin-bottom:6px;animation:mascotFloat 2s ease-in-out infinite;">🎒</span><h2 style="background:linear-gradient(135deg,#F4A0B0,#D4687C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;">我的成绩单 (◍•ᴗ•◍)</h2><p style="color:var(--text3);font-size:0.83rem;">以下是你的成绩信息 ~</p><div style="display:inline-block;margin-top:6px;background:var(--hover);color:#F4A0B0;padding:4px 14px;border-radius:20px;font-size:0.85rem;font-weight:700;border:1.5px solid #FDE0E5;">学号: <span id="stuIdDisplay">---</span></div></div>
           <div id="studentContent" style="width:100%;max-width:600px;"></div>
         </div>
       </div>
@@ -607,45 +607,47 @@ console.log('Firebase SDK ready');
 // ============================================================
 // 星空背景
 // ============================================================
-(function initStars(){
+(function initPetals(){
   var c=document.getElementById('sakuraCanvas');if(!c)return;
   var ctx=c.getContext('2d');
-  var stars=[],w,h;
+  var petals=[],w,h;
   function resize(){w=c.width=window.innerWidth;h=c.height=window.innerHeight;}
   resize();window.addEventListener('resize',resize);
-  // 多层次星空
-  for(var i=0;i<250;i++){
-    var tier=Math.random();
-    stars.push({
-      x:Math.random()*w,y:Math.random()*h,
-      r:tier<0.1?2.2+Math.random()*1.5:tier<0.4?1.2+Math.random()*1:0.4+Math.random()*0.8,
-      a:Math.random(),sp:0.008+Math.random()*0.005,
-      hue:200+Math.random()*40,
-      glow:tier<0.15
+  // 创建花瓣
+  for(var i=0;i<30;i++){
+    petals.push({
+      x:Math.random()*w, y:Math.random()*h*-1,
+      s:Math.random()*6+4, r:Math.random()*360, dr:Math.random()*1.5-0.75,
+      sp:Math.random()*0.8+0.3, ws:Math.random()*0.5-0.25,
+      hue:Math.random()*20+345, alpha:Math.random()*0.3+0.7
     });
+  }
+  // 画5瓣樱花
+  function drawPetal(x,y,s,r,hue,alpha){
+    ctx.save(); ctx.translate(x,y); ctx.rotate(r*Math.PI/180);
+    ctx.fillStyle='hsla('+hue+',80%,82%,'+alpha+')';
+    ctx.beginPath();
+    for(var i=0;i<5;i++){
+      var a=i*Math.PI*2/5;
+      var cx=Math.cos(a)*s*0.6, cy=Math.sin(a)*s*0.6;
+      if(i===0)ctx.moveTo(cx,cy);
+      else ctx.quadraticCurveTo(Math.cos(a-Math.PI/5)*s*0.25,Math.sin(a-Math.PI/5)*s*0.25,cx,cy);
+    }
+    ctx.closePath(); ctx.fill();
+    // 花蕊
+    ctx.fillStyle='hsla('+(hue+10)+',50%,60%,'+alpha+')';
+    ctx.beginPath(); ctx.arc(0,0,s*0.15,0,Math.PI*2); ctx.fill();
+    ctx.restore();
   }
   function draw(){
     ctx.clearRect(0,0,w,h);
-    for(var i=0;i<stars.length;i++){
-      var s=stars[i];s.a+=s.sp;if(s.a>1)s.a=0;
-      var alpha=0.25+Math.sin(s.a*Math.PI)*0.75;
-      // 十字光芒（亮星）
-      if(s.glow&&alpha>0.7){
-        ctx.strokeStyle='hsla('+s.hue+',60%,80%,'+(alpha*0.15)+')';
-        ctx.lineWidth=0.5;
-        ctx.beginPath();ctx.moveTo(s.x-s.r*4,s.y);ctx.lineTo(s.x+s.r*4,s.y);ctx.stroke();
-        ctx.beginPath();ctx.moveTo(s.x,s.y-s.r*4);ctx.lineTo(s.x,s.y+s.r*4);ctx.stroke();
-      }
-      // 辉光
-      if(s.glow&&alpha>0.5){
-        var g=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r*4);
-        g.addColorStop(0,'hsla('+s.hue+',60%,85%,'+(alpha*0.3)+')');
-        g.addColorStop(1,'hsla('+s.hue+',60%,70%,0)');
-        ctx.fillStyle=g;ctx.beginPath();ctx.arc(s.x,s.y,s.r*4,0,Math.PI*2);ctx.fill();
-      }
-      // 星点
-      ctx.fillStyle='hsla('+s.hue+',40%,90%,'+alpha+')';
-      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
+    for(var i=0;i<petals.length;i++){
+      var p=petals[i];
+      drawPetal(p.x,p.y,p.s,p.r,p.hue,p.alpha*0.6);
+      drawPetal(p.x-1,p.y-1,p.s*0.7,p.r+20,p.hue+5,p.alpha*0.3);
+      p.y+=p.sp; p.x+=p.ws; p.r+=p.dr;
+      if(p.y>h+30){p.y=-30;p.x=Math.random()*w; p.s=Math.random()*6+4;}
+      if(p.x>w+30)p.x=-30; if(p.x<-30)p.x=w+30;
     }
     requestAnimationFrame(draw);
   }
@@ -938,7 +940,7 @@ function showInputForm(){
   h+='<p style="font-size:0.8rem;color:var(--text2);margin:4px 0;">选择要录入的课程（最多'+MAX_COURSES+'门）：</p>';
   h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;" id="courseChecks">';
   for(var i=0;i<courseNames.length;i++){
-    h+='<label style="display:flex;align-items:center;gap:3px;font-size:0.82rem;cursor:pointer;background:var(--surface2);padding:5px 10px;border-radius:14px;border:1px solid var(--border);"><input type="checkbox" value="'+i+'" id="cc'+i+'" '+(i<3?'checked':'')+' style="accent-color:#3b82f6;">'+courseNames[i]+' ('+courseCredits[i]+'学分)</label>';
+    h+='<label style="display:flex;align-items:center;gap:3px;font-size:0.82rem;cursor:pointer;background:var(--surface2);padding:5px 10px;border-radius:14px;border:1px solid var(--border);"><input type="checkbox" value="'+i+'" id="cc'+i+'" '+(i<3?'checked':'')+' style="accent-color:#F4A0B0;">'+courseNames[i]+' ('+courseCredits[i]+'学分)</label>';
   }
   h+='</div><p style="font-size:0.74rem;color:var(--text3);" id="ccMsg"></p>';
   h+='<button class="btn btn-pri" onclick="startInput()">✨ 开始录入</button> <button class="btn btn-out" onclick="loadDemo()">🎲 加载演示</button>';
@@ -957,7 +959,7 @@ function startInput(){
   $('ccMsg').innerHTML='';
   engine.clear();autoSave();
   var mm=selIdx.length;
-  var h='<div class="card"><h3>逐条录入 ('+n+'人, '+mm+'门)</h3><div style="margin-bottom:8px;font-size:0.82rem;color:var(--text3);">当前: <strong id="curIdx" style="color:#3b82f6;">第 1 位</strong> | 进度: <span id="prog">0</span>/'+n+'</div>';
+  var h='<div class="card"><h3>逐条录入 ('+n+'人, '+mm+'门)</h3><div style="margin-bottom:8px;font-size:0.82rem;color:var(--text3);">当前: <strong id="curIdx" style="color:#F4A0B0;">第 1 位</strong> | 进度: <span id="prog">0</span>/'+n+'</div>';
   h+='<div class="fgrid"><div class="fg"><label>学号</label><input type="number" id="fNum" min="1" placeholder="正整数"></div><div class="fg"><label>姓名</label><input type="text" id="fName" placeholder="姓名"></div></div><div class="fgrid" style="margin-top:6px;" id="scoreFields">';
   for(var j=0;j<mm;j++)h+='<div class="fg"><label>'+courseNames[selIdx[j]]+' (0-100)</label><input type="number" id="fS'+j+'" min="0" max="100" step="0.5" placeholder="0-100"></div>';
   h+='</div><div style="margin-top:10px;"><button class="btn btn-pri" onclick="addOne('+n+','+mm+','+JSON.stringify(selIdx)+')">✨ 提交并继续</button> <button class="btn btn-out" onclick="finishInput()">完成</button></div></div>';
@@ -993,7 +995,7 @@ function showAll(){
       s.rank>0?'<span class="rk '+rkCls(s.rank)+'">'+s.rank+'</span>':'-',s.num,s.name
     ];
     for(var j=0;j<mm;j++)row.push('<span class="'+scColor(s.scores[j])+'">'+s.scores[j].toFixed(1)+'</span>');
-    row.push('<strong>'+s.sum.toFixed(2)+'</strong>',s.aver.toFixed(2),'<strong style="color:#3b82f6;">'+s.gpa.toFixed(2)+'</strong>');
+    row.push('<strong>'+s.sum.toFixed(2)+'</strong>',s.aver.toFixed(2),'<strong style="color:#F4A0B0;">'+s.gpa.toFixed(2)+'</strong>');
     row.push('<button class="btn-sm btn-sm-comment" onclick="editComment('+i+',\x27'+(s.comment||'').replace(/\\/g,'\\\\').replace(/'/g,"\\x27")+'\x27)">'+(s.comment?'c':'+')+'</button>');
     return row;
   });
@@ -1103,12 +1105,12 @@ function showCharts(){
     // 分布图
     var d=engine.dist(0);if(d){
       var chart=echarts.init($('chartDist'));
-      chart.setOption({title:{text:courseNames[0]+'成绩分布',textStyle:{fontSize:13}},tooltip:{},xAxis:{data:d.items.map(function(x){return x.range;})},yAxis:{},series:[{type:'bar',data:d.items.map(function(x){return x.count;}),itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#3b82f6'},{offset:1,color:'#93c5fd'}])},barWidth:'55%'}],grid:{top:35,right:15,bottom:25,left:35}});
+      chart.setOption({title:{text:courseNames[0]+'成绩分布',textStyle:{fontSize:13}},tooltip:{},xAxis:{data:d.items.map(function(x){return x.range;})},yAxis:{},series:[{type:'bar',data:d.items.map(function(x){return x.count;}),itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#F4A0B0'},{offset:1,color:'#FAD0D8'}])},barWidth:'55%'}],grid:{top:35,right:15,bottom:25,left:35}});
     }
     // 雷达图
     var cs=engine.courseStats(),radarData=cs.map(function(x){return x.avg;});
     var chart2=echarts.init($('chartRadar'));
-    chart2.setOption({title:{text:'各课程平均分对比',textStyle:{fontSize:13}},radar:{indicator:cs.map(function(x,i){return{name:courseNames[i],max:100};})},series:[{type:'radar',data:[{value:radarData,name:'平均分'}],areaStyle:{color:'rgba(59,130,246,0.25)'},lineStyle:{color:'#3b82f6'},itemStyle:{color:'#3b82f6'}}],grid:{top:35,right:15,bottom:25,left:35}});
+    chart2.setOption({title:{text:'各课程平均分对比',textStyle:{fontSize:13}},radar:{indicator:cs.map(function(x,i){return{name:courseNames[i],max:100};})},series:[{type:'radar',data:[{value:radarData,name:'平均分'}],areaStyle:{color:'rgba(59,130,246,0.25)'},lineStyle:{color:'#F4A0B0'},itemStyle:{color:'#F4A0B0'}}],grid:{top:35,right:15,bottom:25,left:35}});
     // 总分柱状图
     var chart3=echarts.init($('chartBar'));
     chart3.setOption({title:{text:'总分排名',textStyle:{fontSize:13}},tooltip:{},xAxis:{data:all.map(function(s){return s.name;}),axisLabel:{rotate:30,fontSize:10}},yAxis:{},series:[{type:'bar',data:all.map(function(s){return s.sum;}),itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#38bdf8'},{offset:1,color:'#80d8f0'}])},barWidth:'55%'}],grid:{top:35,right:15,bottom:50,left:45}});
@@ -1125,7 +1127,7 @@ function showTrend(){
     var times=hist.map(function(x,i){return '快照'+(i+1);});
     var avgs=hist.map(function(x){var d=x.data||x;if(!d.students||d.students.length===0)return 0;var sum=0;for(var i=0;i<d.students.length;i++)sum+=d.students[i].sum||0;return+(sum/d.students.length).toFixed(1);});
     var chart=echarts.init($('chartTrend'));
-    chart.setOption({title:{text:'班级平均分变化',textStyle:{fontSize:13}},tooltip:{},xAxis:{data:times},yAxis:{},series:[{type:'line',data:avgs,smooth:true,lineStyle:{color:'#3b82f6',width:3},itemStyle:{color:'#3b82f6'},areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(59,130,246,0.35)'},{offset:1,color:'rgba(59,130,246,0.02)'}])}}],grid:{top:35,right:15,bottom:25,left:45}});
+    chart.setOption({title:{text:'班级平均分变化',textStyle:{fontSize:13}},tooltip:{},xAxis:{data:times},yAxis:{},series:[{type:'line',data:avgs,smooth:true,lineStyle:{color:'#F4A0B0',width:3},itemStyle:{color:'#F4A0B0'},areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(59,130,246,0.35)'},{offset:1,color:'rgba(59,130,246,0.02)'}])}}],grid:{top:35,right:15,bottom:25,left:45}});
   },200);
 }
 
@@ -1301,11 +1303,11 @@ function showClassManage(){
   else{
     for(var i=0;i<classes.length;i++){
       var cl=classes[i],active=(cl.id===cid);
-      h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:'+(active?'var(--hover)':'var(--surface2)')+';border-radius:10px;border:1px solid '+(active?'#3b82f6':'var(--border)')+';margin-bottom:6px;">';
-      h+='<div><strong style="color:'+(active?'#3b82f6':'var(--text)')+';">'+cl.name+'</strong><br><span style="font-size:0.72rem;color:var(--text3);">邀请码: <code style="background:var(--bg);padding:1px 6px;border-radius:3px;">'+cl.inviteCode+'</code> | '+(cl.students?cl.students.length:0)+'人</span></div>';
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:'+(active?'var(--hover)':'var(--surface2)')+';border-radius:10px;border:1px solid '+(active?'#F4A0B0':'var(--border)')+';margin-bottom:6px;">';
+      h+='<div><strong style="color:'+(active?'#F4A0B0':'var(--text)')+';">'+cl.name+'</strong><br><span style="font-size:0.72rem;color:var(--text3);">邀请码: <code style="background:var(--bg);padding:1px 6px;border-radius:3px;">'+cl.inviteCode+'</code> | '+(cl.students?cl.students.length:0)+'人</span></div>';
       h+='<div style="display:flex;gap:4px;">';
       if(!active)h+='<button class="btn btn-sm btn-ok" onclick="switchClass(\x27'+cl.id+'\x27)">进入</button>';
-      else h+='<span style="font-size:0.74rem;color:#3b82f6;font-weight:600;">当前</span>';
+      else h+='<span style="font-size:0.74rem;color:#F4A0B0;font-weight:600;">当前</span>';
       h+='<button class="btn btn-sm btn-sm-del" onclick="deleteClass(\x27'+cl.id+'\x27)">删</button></div></div>';
     }
   }
