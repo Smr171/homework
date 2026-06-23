@@ -1089,7 +1089,7 @@ function showInputForm(){
     h+='<label style="display:flex;align-items:center;gap:3px;font-size:0.82rem;cursor:pointer;background:var(--surface2);padding:5px 10px;border-radius:14px;border:1px solid var(--border);"><input type="checkbox" value="'+i+'" id="cc'+i+'" '+(i<3?'checked':'')+' style="accent-color:#6366f1;">'+courseNames[i]+' ('+courseCredits[i]+'学分)</label>';
   }
   h+='</div><p style="font-size:0.74rem;color:var(--text3);" id="ccMsg"></p>';
-  h+='<button class="btn btn-pri" onclick="startInput()">✨ 开始录入</button> <button class="btn btn-out" onclick="loadDemo()">🎲 加载演示</button>';
+  h+='<button class="btn btn-pri" onclick="startInput()">✨ 开始录入</button> <button class="btn btn-out" onclick="loadDemo()">🎲 载入示例数据</button>';
   h+='</div><div id="batchArea"></div>';
   $('contentArea').innerHTML=h;
 }
@@ -1125,7 +1125,7 @@ function finishInput(){var d=window._bt?window._bt.done:engine.count();$('batchA
 function loadDemo(){
   engine.clear();var ns=['张三','李四','王五','赵六','钱七','孙八'];var ss=[[88,92,78],[75,85,90],[95,88,82],[60,72,68],[100,96,94],[82,79,91]];
   for(var i=0;i<ns.length;i++)engine.add(2024001+i,ns[i],ss[i]);
-  showToast('🎲 已加载'+ns.length+'位演示学生(未保存)','ok');showAll();
+  showToast('🎲 已载入'+ns.length+'位示例学生(未保存)','ok');showAll();
 }
 
 // ---- 显示全部 ----
