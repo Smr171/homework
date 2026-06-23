@@ -78,7 +78,7 @@ body {
   background-size: cover; background-position: center; background-repeat: no-repeat;
   transition: opacity 2s ease-in-out;
 }
-#bgImgA { opacity: 0.90; }
+#bgImgA { opacity: 0.95; }
 #bgImgB { opacity: 0; }
 /* 第2层(z-[-9]): 半透明白色 + 毛玻璃模糊 */
 body::before {
@@ -779,7 +779,7 @@ console.log('Firebase SDK ready');
     var active = (cur%2===0) ? elA : elB;
     var standby = (cur%2===0) ? elB : elA;
     standby.style.backgroundImage = 'url(\x27'+images[cur]+'\x27)';
-    standby.style.opacity = '0.90';
+    standby.style.opacity = '0.95';
     active.style.opacity = '0';
   }
   setInterval(switchBg, 12000);
@@ -1504,7 +1504,17 @@ autoSave=function(){saveCurToClass();_autoSaveOri();};
 // 侧边栏
 // ============================================================
 var actions={input:showInputForm,display:showAll,export:exportCSV,backup:showBackupRestore,csvImport:showCSVImport,classManage:showClassManage,clear:showClearConfirm,courseStats:showCourseStats,studentStats:showStudentStats,distribution:showDistribution,charts:showCharts,trend:showTrend,sortDesc:function(){doSort('desc');},sortAsc:function(){doSort('asc');},sortNum:function(){doSort('num');},sortName:function(){doSort('name');},searchNum:showSearchNum,searchName:showSearchName,approval:showApproval,userManage:showUserManage};
-$('sidebar').addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;var btns=$('sidebar').querySelectorAll('button');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');b.classList.add('active');try{actions[b.dataset.act]();$('contentArea').scrollTop=0;}catch(err){showToast('出错啦: '+err.message,'err');}});
+// 切回演示tab
+function switchToDemoTab(){
+  var bs=$('tabNav').querySelectorAll('button');
+  for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');
+  bs[0].classList.add('on');
+  var ps=document.querySelectorAll('.tab-pane');
+  for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');
+  $('pane-demo').classList.add('show');
+}
+$('sidebar').addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;var btns=$('sidebar').querySelectorAll('button');for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');b.classList.add('active');// 自动切回演示tab
+switchToDemoTab();try{actions[b.dataset.act]();$('contentArea').scrollTop=0;}catch(err){showToast('出错啦: '+err.message,'err');}});
 
 // Tab
 $('tabNav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;var n=b.dataset.tab,bs=$('tabNav').querySelectorAll('button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');b.classList.add('on');var ps=document.querySelectorAll('.tab-pane');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');$('pane-'+n).classList.add('show');if(n==='about'){document.documentElement.style.minWidth='';document.body.style.minWidth='';var el=document.getElementById('appWrap');if(el){el.style.minWidth='';el.style.width='';}el=document.querySelector('.topbar');if(el){el.style.minWidth='';el.style.width='';}el=document.getElementById('statusBar');if(el){el.style.minWidth='';el.style.width='';}el=document.querySelector('.main-area');if(el){el.style.minWidth='';el.style.width='';}}if(n==='source')renderSource();if(n==='about'){setTimeout(function(){try{mermaid.init(undefined,$('pane-about').querySelectorAll('.mermaid'));}catch(e){}},500);}});
@@ -1519,7 +1529,7 @@ function toggleMobileMenu(){
   m.querySelector('.mm-sidebar').appendChild(sb);
   m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('show');});
   document.body.appendChild(m);
-  sb.addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;try{actions[b.dataset.act]();$('contentArea').scrollTop=0;m.classList.remove('show');}catch(err){showToast('出错啦: '+err.message,'err');}});
+  sb.addEventListener('click',function(e){var b=e.target.closest('button[data-act]');if(!b||!actions[b.dataset.act])return;switchToDemoTab();try{actions[b.dataset.act]();$('contentArea').scrollTop=0;m.classList.remove('show');}catch(err){showToast('出错啦: '+err.message,'err');}});
 }
 
 // ============================================================
