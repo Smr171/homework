@@ -925,7 +925,10 @@ function loginUser(user,acct){
   var badge=document.getElementById('roleBadge');
   if(currentRole==='teacher'){
     document.getElementById('teacherUI').style.display='flex';document.getElementById('studentUI').style.display='none';document.getElementById('statusBar').style.display='flex';
-    badge.textContent='🧑‍🏫 教师';badge.className='role-badge teacher';loadCurFromClass();updateStats();if(engine.count()>0)showAll();
+    badge.textContent='🧑‍🏫 教师';badge.className='role-badge teacher';loadCurFromClass();updateStats();showInputForm();
+    // 高亮侧边栏「录入学生信息」
+    var sbs=$('sidebar').querySelectorAll('button');for(var i=0;i<sbs.length;i++)sbs[i].classList.remove('active');
+    var inpBtn=$('sidebar').querySelector('button[data-act="input"]');if(inpBtn)inpBtn.classList.add('active');
   }else{
     document.getElementById('teacherUI').style.display='none';document.getElementById('studentUI').style.display='flex';document.getElementById('statusBar').style.display='none';
     badge.textContent='🎒 学生';badge.className='role-badge student';
