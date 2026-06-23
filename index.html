@@ -904,10 +904,9 @@ function doAuth(){
 
 function loginUser(user,acct){
   currentUser=user;
-  // 从账号数据中读取角色，若缺失则根据注册时选择的角色(currentRole)判定
+  // 以账号存储的角色为准；若旧账号缺失role字段则用当前标签页选择的角色补上
   if(acct.role==='teacher'||acct.role==='student'){currentRole=acct.role;}
-  else if(acct.studentId){currentRole='student';}
-  else{currentRole='teacher';}
+  else{currentRole=currentRole==='student'?'student':'teacher';acct.role=currentRole;saveAccounts(getAccounts());}
   userStudentId=acct.studentId||null;
   document.getElementById('curUser').textContent=user;
   document.getElementById('authOverlay').classList.add('hidden');document.getElementById('appWrap').classList.add('active');
@@ -928,7 +927,7 @@ function loginUser(user,acct){
   showToast('欢迎回来，'+user+'！🌸','ok');
 }
 
-function doLogout(){saveUserData();localStorage.removeItem('_sg_session');currentUser=null;userStudentId=null;updateWatermark();document.getElementById('authOverlay').classList.remove('hidden');document.getElementById('appWrap').classList.remove('active');if(authMode==='register')toggleAuthMode();document.getElementById('authUser').focus();}
+function doLogout(){saveUserData();localStorage.removeItem('_sg_session');currentUser=null;userStudentId=null;currentRole='teacher';switchRole('teacher');updateWatermark();document.getElementById('authOverlay').classList.remove('hidden');document.getElementById('appWrap').classList.remove('active');if(authMode==='register')toggleAuthMode();document.getElementById('authUser').focus();}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&!document.getElementById('authOverlay').classList.contains('hidden'))doAuth();});
 
 // ============================================================
