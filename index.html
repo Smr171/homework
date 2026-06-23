@@ -78,7 +78,7 @@ body {
   background-size: cover; background-position: center; background-repeat: no-repeat;
   transition: opacity 2s ease-in-out;
 }
-#bgImgA { opacity: 0.85; }
+#bgImgA { opacity: 0.90; }
 #bgImgB { opacity: 0; }
 /* 第2层(z-[-9]): 半透明白色 + 毛玻璃模糊 */
 body::before {
@@ -520,8 +520,8 @@ th.sortable.desc::after { content: '▼'; opacity: 1; color: #6366f1; }
   html { overflow-x: auto; }
   body { overflow-x: auto; overflow-y: auto; }
   body::after { background-size: 24px 24px; }
-  .app-wrap { display: block !important; }
-  .app-wrap::before { inset: 56px 10px 10px; border-radius: 22px; }
+  .app-wrap.active { display: flex !important; }
+  .app-wrap.active::before { inset: 56px 10px 10px; border-radius: 22px; }
   .sidebar { display: none; }
   .tab-nav button { padding: 5px 7px; font-size: 0.64rem; }
   .topbar { position: relative !important; height: 48px; padding: 0 8px; margin: 8px 8px 0; border-radius: 16px; top: 0; }
@@ -779,7 +779,7 @@ console.log('Firebase SDK ready');
     var active = (cur%2===0) ? elA : elB;
     var standby = (cur%2===0) ? elB : elA;
     standby.style.backgroundImage = 'url(\x27'+images[cur]+'\x27)';
-    standby.style.opacity = '0.85';
+    standby.style.opacity = '0.90';
     active.style.opacity = '0';
   }
   setInterval(switchBg, 12000);
