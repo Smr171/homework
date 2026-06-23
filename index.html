@@ -383,6 +383,10 @@ th.sortable::after { content: '⇅'; position: absolute; right: 4px; font-size: 
 th.sortable.asc::after { content: '▲'; opacity: 1; color: #6366f1; }
 th.sortable.desc::after { content: '▼'; opacity: 1; color: #6366f1; }
 
+/* Mermaid 架构图手机端适配 */
+.mermaid { max-width: 100%; overflow-x: auto; }
+.mermaid svg { max-width: 100%; height: auto; }
+
 /* 源码折叠 */
 .src-wrap details { margin-bottom: 6px; }
 .src-wrap details summary {
@@ -1527,7 +1531,7 @@ $('sidebar').addEventListener('click',function(e){var b=e.target.closest('button
 switchToDemoTab();try{actions[b.dataset.act]();$('contentArea').scrollTop=0;}catch(err){showToast('出错啦: '+err.message,'err');}});
 
 // Tab
-$('tabNav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;var n=b.dataset.tab,bs=$('tabNav').querySelectorAll('button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');b.classList.add('on');var ps=document.querySelectorAll('.tab-pane');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');$('pane-'+n).classList.add('show');if(n==='demo'||n==='about'){document.documentElement.style.minWidth='';document.body.style.minWidth='';var el=document.getElementById('appWrap');if(el){el.style.minWidth='';el.style.width='';}el=document.querySelector('.topbar');if(el){el.style.minWidth='';el.style.width='';}el=document.getElementById('statusBar');if(el){el.style.minWidth='';el.style.width='';}el=document.querySelector('.main-area');if(el){el.style.minWidth='';el.style.width='';}}if(n==='source')renderSource();if(n==='about'){setTimeout(function(){try{mermaid.run({querySelector:'#pane-about .mermaid'});}catch(e){}},400);}});
+$('tabNav').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;var n=b.dataset.tab,bs=$('tabNav').querySelectorAll('button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');b.classList.add('on');var ps=document.querySelectorAll('.tab-pane');for(var i=0;i<ps.length;i++)ps[i].classList.remove('show');$('pane-'+n).classList.add('show');if(n==='demo'||n==='about'){document.documentElement.style.minWidth='';document.body.style.minWidth='';var el=document.getElementById('appWrap');if(el){el.style.minWidth='';el.style.width='';}el=document.querySelector('.topbar');if(el){el.style.minWidth='';el.style.width='';}el=document.getElementById('statusBar');if(el){el.style.minWidth='';el.style.width='';}el=document.querySelector('.main-area');if(el){el.style.minWidth='';el.style.width='';}}if(n==='source')renderSource();});
 
 // 移动端菜单
 function toggleMobileMenu(){
@@ -1579,6 +1583,11 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch
 try{mermaid.initialize({startOnLoad:false,theme:'default',securityLevel:'loose'});}catch(e){}
 // 启动
 document.addEventListener('DOMContentLoaded',function(){
+  // 预渲染架构图避免手机端隐藏tab渲染异常
+  try{
+    var _mmSrc='graph TD\n    U[用户] --> L[登录/注册]\n    L -->|教师| TA[教师端]\n    L -->|学生| SA[学生端]\n    TA --> CL[创建班级/邀请码]\n    CL --> CR[成绩录入/统计/排序]\n    SA --> JC[输入邀请码加入班级]\n    JC --> VW[查看个人成绩/GPA]\n    CR --> EN[核心计算引擎]\n    VW --> EN\n    EN --> WASM[C++ WASM]\n    EN --> JS[JS降级]';
+    mermaid.render('mermaidSvg',_mmSrc).then(function(r){var el=document.querySelector('#pane-about .mermaid');if(el){el.innerHTML=r.svg;}}).catch(function(){});
+  }catch(e){}
   // 每次打开页面都显示登录界面，不自动登录
   $('authUser').focus();
 });
