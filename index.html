@@ -8,12 +8,12 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.gstatic.com https://*.firebaseapp.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>学生成绩管理系统 - C++ WebAssembly | 期中作业展示 ٩(๑❛ᴗ❛๑)۶</title>
+<title>学生成绩管理系统</title>
 <meta name="description" content="基于C++开发的学生成绩管理系统，编译为WebAssembly在浏览器运行。教师端管理+学生端查分，含成绩统计、排序、查询、可视化图表、评语、导出Excel。课程设计/期中作业/C++大作业展示。">
 <meta name="keywords" content="学生成绩管理系统,C++,WebAssembly,WASM,Emscripten,成绩管理,课程设计,C++大作业,期中作业">
 <meta name="author" content="成绩管理系统">
 <meta name="robots" content="index, follow">
-<meta property="og:title" content="学生成绩管理系统 - C++ WebAssembly ٩(◕‿◕｡)۶">
+<meta property="og:title" content="学生成绩管理系统">
 <meta property="og:description" content="C++成绩管理系统，教师管理+学生查分，含可视化图表、评语导出。">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="zh_CN">
@@ -78,7 +78,7 @@ body {
   background-size: cover; background-position: center; background-repeat: no-repeat;
   transition: opacity 2s ease-in-out;
 }
-#bgImgA { opacity: 0.95; }
+#bgImgA { opacity: 0.85; }
 #bgImgB { opacity: 0; }
 /* 第2层(z-[-9]): 半透明白色 + 毛玻璃模糊 */
 body::before {
@@ -779,10 +779,10 @@ console.log('Firebase SDK ready');
     var active = (cur%2===0) ? elA : elB;
     var standby = (cur%2===0) ? elB : elA;
     standby.style.backgroundImage = 'url(\x27'+images[cur]+'\x27)';
-    standby.style.opacity = '0.95';
+    standby.style.opacity = '0.85';
     active.style.opacity = '0';
   }
-  setInterval(switchBg, 10000);
+  setInterval(switchBg, 12000);
 })();
 
 // ============================================================
