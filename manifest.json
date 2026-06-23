@@ -4,8 +4,8 @@
   "description": "基于C++的学生成绩管理系统 — 教师管理、学生查分、可视化报表",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#020617",
-  "theme_color": "#1e3a8a",
+  "background_color": "#f8fafc",
+  "theme_color": "#6366f1",
   "orientation": "any",
   "lang": "zh-CN",
   "icons": [
