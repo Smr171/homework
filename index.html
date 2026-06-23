@@ -903,7 +903,12 @@ function doAuth(){
 }
 
 function loginUser(user,acct){
-  currentUser=user;currentRole=acct.role||(acct.studentId?'student':'teacher');userStudentId=acct.studentId||null;
+  currentUser=user;
+  // 从账号数据中读取角色，若缺失则根据注册时选择的角色(currentRole)判定
+  if(acct.role==='teacher'||acct.role==='student'){currentRole=acct.role;}
+  else if(acct.studentId){currentRole='student';}
+  else{currentRole='teacher';}
+  userStudentId=acct.studentId||null;
   document.getElementById('curUser').textContent=user;
   document.getElementById('authOverlay').classList.add('hidden');document.getElementById('appWrap').classList.add('active');
   document.getElementById('authUser').value='';document.getElementById('authPass').value='';
@@ -1553,16 +1558,21 @@ document.addEventListener('DOMContentLoaded',function(){
     if(session&&session.user){
       var accounts=getAccounts();
       if(accounts[session.user]&&accounts[session.user].status==='approved'){
+        // 以账号数据修正session中的角色
+        var _acct=accounts[session.user];
+        var _role=_acct.role||(_acct.studentId?'student':'teacher');
+        var _stuId=_acct.studentId||null;
+        if(session.role!==_role||session.stuId!==_stuId){session.role=_role;session.stuId=_stuId;localStorage.setItem('_sg_session',JSON.stringify(session));}
         // 显示自动登录中提示
         document.getElementById('authOverlay').classList.add('hidden');
         document.getElementById('appWrap').classList.add('active');
         document.getElementById('curUser').textContent=session.user;
         document.getElementById('contentArea').innerHTML='<div class="empty-msg"><div class="em-icon">⏳</div><p style="font-size:1rem;color:var(--text);">正在自动登录...</p><p style="font-size:0.8rem;color:var(--text2);">欢迎回来，'+session.user+'</p></div>';
         setTimeout(function(){
-          currentUser=session.user;currentRole=session.role;userStudentId=session.stuId;
+          currentUser=session.user;currentRole=_role;userStudentId=_stuId;
           loadUserData();
           var badge=document.getElementById('roleBadge');
-          if(session.role==='teacher'){
+          if(_role==='teacher'){
             document.getElementById('teacherUI').style.display='flex';
             document.getElementById('studentUI').style.display='none';
             document.getElementById('statusBar').style.display='flex';
